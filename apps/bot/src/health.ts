@@ -29,11 +29,14 @@ function readJson(req: import("node:http").IncomingMessage): Promise<unknown> {
  *  Les routes /internal/* sont protégées par un secret partagé. */
 export function startHealthServer(): void {
   const server = createServer((req, res) => {
-    const url = req.url ?? "/";
+    const method = req.method ?? "GET";
+    // Normalise : retire la query string et un éventuel slash final.
+    const url = (req.url ?? "/").split("?")[0].replace(/\/+$/, "") || "/";
 
-    if (req.method === "GET" && (url === "/" || url === "/health")) {
+    // Santé : accepte GET ET HEAD (UptimeRobot ping en HEAD par défaut).
+    if ((method === "GET" || method === "HEAD") && (url === "/" || url === "/health")) {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ status: "ok", uptime: process.uptime() }));
+      res.end(method === "HEAD" ? undefined : JSON.stringify({ status: "ok", uptime: process.uptime() }));
       return;
     }
 
@@ -44,7 +47,7 @@ export function startHealthServer(): void {
       return;
     }
 
-    if (req.method === "GET" && url === "/internal/guilds") {
+    if (method === "GET" && url === "/internal/guilds") {
       const ids = [...client.guilds.cache.keys()];
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ guildIds: ids }));
@@ -52,7 +55,7 @@ export function startHealthServer(): void {
     }
 
     const metaMatch = url.match(/^\/internal\/guilds\/(\d+)\/meta$/);
-    if (req.method === "GET" && metaMatch) {
+    if (method === "GET" && metaMatch) {
       const meta = getGuildMeta(metaMatch[1]);
       if (!meta) {
         res.writeHead(404).end();
@@ -64,7 +67,7 @@ export function startHealthServer(): void {
     }
 
     const sendMatch = url.match(/^\/internal\/guilds\/(\d+)\/send-embed$/);
-    if (req.method === "POST" && sendMatch) {
+    if (method === "POST" && sendMatch) {
       readJson(req)
         .then(async (body) => {
           const { channelId, embed } = (body ?? {}) as {
@@ -84,7 +87,7 @@ export function startHealthServer(): void {
       return;
     }
 
-    if (req.method === "POST" && url === "/internal/reload") {
+    if (method === "POST" && url === "/internal/reload") {
       readJson(req)
         .then((body) => {
           const { guildId } = (body ?? {}) as { guildId?: string };
