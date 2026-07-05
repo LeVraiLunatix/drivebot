@@ -4,6 +4,7 @@ import { getGuildMeta } from "@/lib/bot";
 import { loadWelcomeConfig } from "@/lib/config/welcome";
 import { loadModerationConfig } from "@/lib/config/moderation";
 import { loadTicketsConfig } from "@/lib/config/tickets";
+import { loadVerificationConfig } from "@/lib/config/verification";
 import { listTemplates } from "@/lib/config/embeds";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -16,6 +17,7 @@ import {
   IconShield,
   IconSettings,
   IconTicket,
+  IconVerified,
 } from "@/components/ui/Icons";
 
 function Stat({ icon, value, label }: { icon: React.ReactNode; value: string | number; label: string }) {
@@ -74,11 +76,12 @@ export default async function GuildHomePage({
   const { guildId } = await params;
   const guild = await assertGuildAccess(guildId);
 
-  const [meta, welcome, moderation, tickets, templates] = await Promise.all([
+  const [meta, welcome, moderation, tickets, verification, templates] = await Promise.all([
     getGuildMeta(guildId),
     loadWelcomeConfig(guildId),
     loadModerationConfig(guildId),
     loadTicketsConfig(guildId),
+    loadVerificationConfig(guildId),
     listTemplates(guildId),
   ]);
 
@@ -127,6 +130,13 @@ export default async function GuildHomePage({
           title="Bienvenue & autorole"
           desc={welcome.joinEnabled ? "Message d'arrivée actif" : "Aucun message d'arrivée"}
           enabled={welcome.joinEnabled || welcome.leaveEnabled || welcome.autoRoleIds.length > 0}
+        />
+        <FeatureRow
+          href={`${base}/verification`}
+          icon={<IconVerified />}
+          title="Vérification"
+          desc={verification.enabled ? "Captcha anti-bot actif" : "Désactivée"}
+          enabled={verification.enabled}
         />
         <FeatureRow
           href={`${base}/tickets`}

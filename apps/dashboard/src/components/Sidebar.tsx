@@ -11,6 +11,7 @@ import {
   IconMessage,
   IconShield,
   IconTicket,
+  IconVerified,
 } from "@/components/ui/Icons";
 
 interface NavItem {
@@ -37,6 +38,7 @@ export function Sidebar({
     { href: base, label: "Vue d'ensemble", icon: <IconHome /> },
     { href: `${base}/settings`, label: "Paramètres", icon: <IconSettings /> },
     { href: `${base}/welcome`, label: "Bienvenue", icon: <IconWave /> },
+    { href: `${base}/verification`, label: "Vérification", icon: <IconVerified /> },
     { href: `${base}/tickets`, label: "Tickets", icon: <IconTicket /> },
     { href: `${base}/embeds`, label: "Embeds", icon: <IconMessage /> },
     { href: `${base}/moderation`, label: "Modération", icon: <IconShield /> },

@@ -1,8 +1,9 @@
 import type { Interaction } from "discord.js";
 import { commandMap } from "../commands/index.js";
 import { openTicket, claimTicket, closeTicket } from "../lib/tickets.js";
+import { startVerification, submitVerification } from "../lib/verification.js";
 
-/** Dispatch des slash commands et des boutons (tickets). */
+/** Dispatch des slash commands, boutons (tickets, vérif) et modals (vérif). */
 export async function onInteractionCreate(interaction: Interaction): Promise<void> {
   // Boutons du système de tickets.
   if (interaction.isButton() && interaction.customId.startsWith("ticket:")) {
@@ -13,6 +14,16 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
     } catch (err) {
       console.error(`[ticket] erreur sur ${interaction.customId}:`, err);
     }
+    return;
+  }
+
+  // Vérification : bouton + modal.
+  if (interaction.isButton() && interaction.customId === "verify:start") {
+    await startVerification(interaction).catch((e) => console.error("[verify]", e));
+    return;
+  }
+  if (interaction.isModalSubmit() && interaction.customId.startsWith("verify:submit")) {
+    await submitVerification(interaction).catch((e) => console.error("[verify]", e));
     return;
   }
 

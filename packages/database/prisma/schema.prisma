@@ -25,6 +25,7 @@ model Guild {
   welcome        WelcomeConfig?
   moderationCfg  ModerationConfig?
   ticketConfig   TicketConfig?
+  verification   VerificationConfig?
   autoRoles      AutoRole[]
   embedTemplates EmbedTemplate[]
   modCases       ModerationCase[]
@@ -149,4 +150,18 @@ model Ticket {
 enum TicketStatus {
   OPEN
   CLOSED
+}
+
+/// Système de vérification (captcha à bouton) à l'entrée du serveur.
+model VerificationConfig {
+  guildId          String   @id
+  guild            Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  enabled          Boolean  @default(false)
+  channelId        String? // salon où est posté le panneau
+  verifiedRoleId   String? // rôle donné après vérification
+  unverifiedRoleId String? // rôle attribué à l'arrivée (retiré après vérif)
+  panelTitle       String   @default("Vérification")
+  panelDescription String   @default("Clique sur le bouton puis recopie le code affiché pour accéder au serveur.")
+  panelColor       Int      @default(5793266)
+  updatedAt        DateTime @updatedAt
 }
