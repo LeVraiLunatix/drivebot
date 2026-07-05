@@ -5,9 +5,10 @@ import type { GuildMeta } from "@drivebot/types";
 import { saveModerationAction } from "@/app/dashboard/[guildId]/moderation/actions";
 import type { SaveState } from "@/app/dashboard/[guildId]/welcome/actions";
 import type { ModerationFormData } from "@/lib/config/moderation";
-
-const inputCls =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm outline-none focus:border-brand";
+import { SectionCard, Field } from "@/components/ui/Card";
+import { Toggle } from "@/components/ui/Toggle";
+import { SaveBar } from "@/components/config/SettingsForm";
+import { IconShield } from "@/components/ui/Icons";
 
 export function ModerationForm({
   guildId,
@@ -31,58 +32,33 @@ export function ModerationForm({
 
   const save = () =>
     startTransition(async () => {
-      const r = await saveModerationAction(guildId, {
-        logEnabled,
-        logChannel: logChannel || null,
-      });
-      setMsg(r);
+      setMsg(await saveModerationAction(guildId, { logEnabled, logChannel: logChannel || null }));
     });
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
-        <label className="flex items-center gap-2 font-medium">
-          <input
-            type="checkbox"
-            checked={logEnabled}
-            onChange={(e) => setLogEnabled(e.target.checked)}
-          />
-          Journaliser les sanctions
-        </label>
-        <div className="mt-4">
-          <span className="mb-1 block text-xs text-neutral-400">Salon de logs</span>
-          <select
-            value={logChannel}
-            onChange={(e) => setLogChannel(e.target.value)}
-            className={inputCls}
-          >
+      <SectionCard
+        title="Journalisation"
+        description="Enregistre les sanctions et les poste dans un salon."
+        icon={<IconShield />}
+        aside={<Toggle checked={logEnabled} onChange={setLogEnabled} />}
+      >
+        <Field label="Salon de logs">
+          <select value={logChannel} onChange={(e) => setLogChannel(e.target.value)} className="field-input">
             <option value="">— Choisir un salon —</option>
             {channelOptions.map((c) => (
               <option key={c.id} value={c.id}>#{c.name}</option>
             ))}
           </select>
+        </Field>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {["/kick", "/ban", "/timeout", "/warn"].map((c) => (
+            <code key={c} className="rounded-lg bg-white/5 px-2 py-1 text-xs text-neutral-400">{c}</code>
+          ))}
         </div>
-        <p className="mt-3 text-xs text-neutral-500">
-          Les commandes <code>/kick</code>, <code>/ban</code>, <code>/warn</code>,{" "}
-          <code>/timeout</code> enregistrent une entrée et la postent ici.
-        </p>
-      </section>
+      </SectionCard>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={save}
-          disabled={pending}
-          className="rounded-lg bg-brand px-5 py-2.5 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
-        >
-          {pending ? "Enregistrement…" : "Enregistrer"}
-        </button>
-        {msg?.message && (
-          <span className={msg.ok ? "text-sm text-green-400" : "text-sm text-red-400"}>
-            {msg.message}
-          </span>
-        )}
-      </div>
+      <SaveBar pending={pending} msg={msg} onSave={save} />
     </div>
   );
 }

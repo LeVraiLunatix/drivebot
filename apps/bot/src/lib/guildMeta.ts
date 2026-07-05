@@ -4,6 +4,7 @@ import { client } from "../client.js";
 export interface GuildMeta {
   name: string;
   icon: string | null;
+  memberCount: number;
   channels: { id: string; name: string }[];
   roles: { id: string; name: string; color: number }[];
 }
@@ -29,5 +30,11 @@ export function getGuildMeta(guildId: string): GuildMeta | null {
     .sort((a, b) => b.position - a.position)
     .map((r) => ({ id: r.id, name: r.name, color: r.color }));
 
-  return { name: guild.name, icon: guild.icon, channels, roles };
+  return {
+    name: guild.name,
+    icon: guild.icon,
+    memberCount: guild.memberCount,
+    channels,
+    roles,
+  };
 }

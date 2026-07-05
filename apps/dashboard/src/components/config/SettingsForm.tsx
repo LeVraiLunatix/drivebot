@@ -4,9 +4,8 @@ import { useState, useTransition } from "react";
 import { saveSettingsAction } from "@/app/dashboard/[guildId]/settings/actions";
 import type { SaveState } from "@/app/dashboard/[guildId]/welcome/actions";
 import type { SettingsFormData } from "@/lib/config/settings";
-
-const inputCls =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm outline-none focus:border-brand";
+import { SectionCard, Field } from "@/components/ui/Card";
+import { IconCheck } from "@/components/ui/Icons";
 
 export function SettingsForm({
   guildId,
@@ -22,54 +21,47 @@ export function SettingsForm({
 
   const save = () =>
     startTransition(async () => {
-      const r = await saveSettingsAction(guildId, { locale, prefix });
-      setMsg(r);
+      setMsg(await saveSettingsAction(guildId, { locale, prefix }));
     });
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
-        <div className="flex flex-col gap-4">
-          <div>
-            <span className="mb-1 block text-xs text-neutral-400">Langue du bot</span>
-            <select
-              value={locale}
-              onChange={(e) => setLocale(e.target.value as "FR" | "EN")}
-              className={inputCls}
-            >
-              <option value="FR">Français</option>
-              <option value="EN">English</option>
+      <SectionCard title="Général" description="Réglages de base du bot sur ce serveur.">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label="Langue du bot">
+            <select value={locale} onChange={(e) => setLocale(e.target.value as "FR" | "EN")} className="field-input">
+              <option value="FR">🇫🇷 Français</option>
+              <option value="EN">🇬🇧 English</option>
             </select>
-          </div>
-          <div>
-            <span className="mb-1 block text-xs text-neutral-400">
-              Préfixe des commandes texte
-            </span>
-            <input
-              value={prefix}
-              onChange={(e) => setPrefix(e.target.value)}
-              maxLength={5}
-              className={`${inputCls} max-w-24`}
-            />
-          </div>
+          </Field>
+          <Field label="Préfixe" hint="Pour les commandes texte (5 caractères max).">
+            <input value={prefix} onChange={(e) => setPrefix(e.target.value)} maxLength={5} className="field-input" />
+          </Field>
         </div>
-      </section>
+      </SectionCard>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={save}
-          disabled={pending}
-          className="rounded-lg bg-brand px-5 py-2.5 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
-        >
-          {pending ? "Enregistrement…" : "Enregistrer"}
-        </button>
-        {msg?.message && (
-          <span className={msg.ok ? "text-sm text-green-400" : "text-sm text-red-400"}>
-            {msg.message}
-          </span>
-        )}
-      </div>
+      <SaveBar pending={pending} msg={msg} onSave={save} />
+    </div>
+  );
+}
+
+export function SaveBar({
+  pending,
+  msg,
+  onSave,
+}: {
+  pending: boolean;
+  msg: SaveState | null;
+  onSave: () => void;
+}) {
+  return (
+    <div className="sticky bottom-4 flex items-center gap-3">
+      <button onClick={onSave} disabled={pending} className="btn-primary">
+        {pending ? "Enregistrement…" : (<><IconCheck width={18} height={18} /> Enregistrer</>)}
+      </button>
+      {msg?.message && (
+        <span className={`text-sm ${msg.ok ? "text-emerald-400" : "text-red-400"}`}>{msg.message}</span>
+      )}
     </div>
   );
 }

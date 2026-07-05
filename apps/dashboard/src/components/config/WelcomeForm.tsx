@@ -4,9 +4,10 @@ import { useState, useTransition } from "react";
 import type { GuildMeta } from "@drivebot/types";
 import { saveWelcome, type SaveState } from "@/app/dashboard/[guildId]/welcome/actions";
 import type { WelcomeFormData } from "@/lib/config/welcome";
-
-const inputCls =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm outline-none focus:border-brand";
+import { SectionCard, Field } from "@/components/ui/Card";
+import { Toggle } from "@/components/ui/Toggle";
+import { SaveBar } from "@/components/config/SettingsForm";
+import { IconWave, IconLogout, IconTag } from "@/components/ui/Icons";
 
 export function WelcomeForm({
   guildId,
@@ -32,11 +33,8 @@ export function WelcomeForm({
   const roles = meta?.roles ?? [];
 
   const toggleRole = (id: string) =>
-    setAutoRoleIds((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
-    );
+    setAutoRoleIds((p) => (p.includes(id) ? p.filter((r) => r !== id) : [...p, id]));
 
-  // Garde le salon sélectionné visible même si la liste du bot est vide/indispo.
   const channelOptions = (selected: string) =>
     selected && !channels.some((c) => c.id === selected)
       ? [{ id: selected, name: "salon actuel" }, ...channels]
@@ -44,158 +42,104 @@ export function WelcomeForm({
 
   const save = () =>
     startTransition(async () => {
-      const r = await saveWelcome(guildId, {
-        joinEnabled,
-        joinChannel: joinChannel || null,
-        joinMessage,
-        leaveEnabled,
-        leaveChannel: leaveChannel || null,
-        leaveMessage,
-        autoRoleIds,
-      });
-      setMsg(r);
+      setMsg(
+        await saveWelcome(guildId, {
+          joinEnabled,
+          joinChannel: joinChannel || null,
+          joinMessage,
+          leaveEnabled,
+          leaveChannel: leaveChannel || null,
+          leaveMessage,
+          autoRoleIds,
+        }),
+      );
     });
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {!meta && (
-        <p className="rounded-lg border border-amber-800 bg-amber-950/40 p-3 text-sm text-amber-300">
-          Bot injoignable : les listes de salons et rôles sont vides. Démarre le
-          bot pour les charger.
+        <p className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-4 text-sm text-amber-300">
+          Bot injoignable : les listes de salons et rôles sont vides.
         </p>
       )}
 
-      {/* Bienvenue */}
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
-        <label className="flex items-center gap-2 font-medium">
-          <input
-            type="checkbox"
-            checked={joinEnabled}
-            onChange={(e) => setJoinEnabled(e.target.checked)}
-          />
-          Activer le message de bienvenue
-        </label>
-        {!joinEnabled && (
-          <p className="mt-2 text-xs text-amber-400">
-            Coche cette case pour que le message soit envoyé aux arrivées.
-          </p>
-        )}
-        <div className="mt-4 flex flex-col gap-3">
-          <div>
-            <span className="mb-1 block text-xs text-neutral-400">Salon</span>
-            <select
-              value={joinChannel}
-              onChange={(e) => setJoinChannel(e.target.value)}
-              className={inputCls}
-            >
+      <SectionCard
+        title="Message de bienvenue"
+        description="Envoyé quand un membre rejoint le serveur."
+        icon={<IconWave />}
+        aside={<Toggle checked={joinEnabled} onChange={setJoinEnabled} label="" />}
+      >
+        <div className="grid gap-5">
+          <Field label="Salon">
+            <select value={joinChannel} onChange={(e) => setJoinChannel(e.target.value)} className="field-input">
               <option value="">— Choisir un salon —</option>
               {channelOptions(joinChannel).map((c) => (
                 <option key={c.id} value={c.id}>#{c.name}</option>
               ))}
             </select>
-          </div>
-          <div>
-            <span className="mb-1 block text-xs text-neutral-400">Message</span>
-            <textarea
-              value={joinMessage}
-              onChange={(e) => setJoinMessage(e.target.value)}
-              rows={2}
-              className={inputCls}
-            />
-            <p className="mt-1 text-xs text-neutral-500">
-              Variables : <code>{"{user}"}</code> <code>{"{username}"}</code>{" "}
-              <code>{"{server}"}</code> <code>{"{memberCount}"}</code>
-            </p>
-          </div>
+          </Field>
+          <Field
+            label="Message"
+            hint="Variables : {user} · {username} · {server} · {memberCount}"
+          >
+            <textarea value={joinMessage} onChange={(e) => setJoinMessage(e.target.value)} rows={3} className="field-input" />
+          </Field>
         </div>
-      </section>
+      </SectionCard>
 
-      {/* Départ */}
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
-        <label className="flex items-center gap-2 font-medium">
-          <input
-            type="checkbox"
-            checked={leaveEnabled}
-            onChange={(e) => setLeaveEnabled(e.target.checked)}
-          />
-          Activer le message de départ
-        </label>
-        <div className="mt-4 flex flex-col gap-3">
-          <div>
-            <span className="mb-1 block text-xs text-neutral-400">Salon</span>
-            <select
-              value={leaveChannel}
-              onChange={(e) => setLeaveChannel(e.target.value)}
-              className={inputCls}
-            >
+      <SectionCard
+        title="Message de départ"
+        description="Envoyé quand un membre quitte le serveur."
+        icon={<IconLogout />}
+        aside={<Toggle checked={leaveEnabled} onChange={setLeaveEnabled} label="" />}
+      >
+        <div className="grid gap-5">
+          <Field label="Salon">
+            <select value={leaveChannel} onChange={(e) => setLeaveChannel(e.target.value)} className="field-input">
               <option value="">— Choisir un salon —</option>
               {channelOptions(leaveChannel).map((c) => (
                 <option key={c.id} value={c.id}>#{c.name}</option>
               ))}
             </select>
-          </div>
-          <div>
-            <span className="mb-1 block text-xs text-neutral-400">Message</span>
-            <textarea
-              value={leaveMessage}
-              onChange={(e) => setLeaveMessage(e.target.value)}
-              rows={2}
-              className={inputCls}
-            />
-          </div>
+          </Field>
+          <Field label="Message">
+            <textarea value={leaveMessage} onChange={(e) => setLeaveMessage(e.target.value)} rows={2} className="field-input" />
+          </Field>
         </div>
-      </section>
+      </SectionCard>
 
-      {/* Autorôles */}
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
-        <p className="font-medium">Rôles automatiques</p>
-        <p className="mt-1 text-xs text-neutral-400">
-          Attribués à chaque nouveau membre.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {roles.length === 0 && (
-            <span className="text-sm text-neutral-500">Aucun rôle disponible.</span>
-          )}
+      <SectionCard
+        title="Rôles automatiques"
+        description="Attribués à chaque nouveau membre."
+        icon={<IconTag />}
+      >
+        <div className="flex flex-wrap gap-2">
+          {roles.length === 0 && <span className="text-sm text-neutral-500">Aucun rôle disponible.</span>}
           {roles.map((r) => {
             const checked = autoRoleIds.includes(r.id);
             return (
-              <label
+              <button
+                type="button"
                 key={r.id}
-                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition ${
-                  checked ? "border-brand bg-brand/10" : "border-neutral-700"
+                onClick={() => toggleRole(r.id)}
+                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${
+                  checked
+                    ? "border-brand bg-brand/15 text-white"
+                    : "border-[var(--color-line)] text-neutral-300 hover:bg-white/5"
                 }`}
               >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => toggleRole(r.id)}
-                />
                 <span
                   className="size-2.5 rounded-full"
                   style={{ backgroundColor: r.color ? `#${r.color.toString(16).padStart(6, "0")}` : "#99aab5" }}
                 />
                 {r.name}
-              </label>
+              </button>
             );
           })}
         </div>
-      </section>
+      </SectionCard>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={save}
-          disabled={pending}
-          className="rounded-lg bg-brand px-5 py-2.5 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
-        >
-          {pending ? "Enregistrement…" : "Enregistrer"}
-        </button>
-        {msg?.message && (
-          <span className={msg.ok ? "text-sm text-green-400" : "text-sm text-red-400"}>
-            {msg.message}
-          </span>
-        )}
-      </div>
+      <SaveBar pending={pending} msg={msg} onSave={save} />
     </div>
   );
 }

@@ -1,15 +1,17 @@
-import Link from "next/link";
 import { assertGuildAccess } from "@/lib/guard";
 import { getGuildMeta } from "@/lib/bot";
 import { loadModerationConfig, recentCases } from "@/lib/config/moderation";
 import { ModerationForm } from "@/components/config/ModerationForm";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionCard } from "@/components/ui/Card";
+import { IconShield } from "@/components/ui/Icons";
 
-const TYPE_LABEL: Record<string, string> = {
-  WARN: "Avertissement",
-  KICK: "Expulsion",
-  BAN: "Bannissement",
-  UNBAN: "Débannissement",
-  TIMEOUT: "Exclusion temporaire",
+const TYPE: Record<string, { label: string; cls: string }> = {
+  WARN: { label: "Avertissement", cls: "bg-amber-500/15 text-amber-400" },
+  KICK: { label: "Expulsion", cls: "bg-orange-500/15 text-orange-400" },
+  BAN: { label: "Bannissement", cls: "bg-red-500/15 text-red-400" },
+  UNBAN: { label: "Débannissement", cls: "bg-emerald-500/15 text-emerald-400" },
+  TIMEOUT: { label: "Exclusion temp.", cls: "bg-violet-500/15 text-violet-400" },
 };
 
 export default async function ModerationPage({
@@ -18,7 +20,7 @@ export default async function ModerationPage({
   params: Promise<{ guildId: string }>;
 }) {
   const { guildId } = await params;
-  const guild = await assertGuildAccess(guildId);
+  await assertGuildAccess(guildId);
 
   const [meta, initial, cases] = await Promise.all([
     getGuildMeta(guildId),
@@ -27,39 +29,40 @@ export default async function ModerationPage({
   ]);
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
-      <Link
-        href={`/dashboard/${guildId}`}
-        className="text-sm text-neutral-400 hover:text-neutral-200"
-      >
-        ← {guild.name}
-      </Link>
-      <h1 className="mb-8 mt-3 text-2xl font-bold">Modération & logs</h1>
+    <>
+      <PageHeader
+        title="Modération & logs"
+        description="Sanctions, journalisation et historique."
+        icon={<IconShield />}
+      />
 
-      <ModerationForm guildId={guildId} meta={meta} initial={initial} />
+      <div className="flex flex-col gap-6">
+        <ModerationForm guildId={guildId} meta={meta} initial={initial} />
 
-      <h2 className="mb-3 mt-10 text-lg font-semibold">Dernières sanctions</h2>
-      {cases.length === 0 ? (
-        <p className="text-sm text-neutral-500">Aucune sanction enregistrée.</p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {cases.map((c) => (
-            <li
-              key={c.id}
-              className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm"
-            >
-              <span>
-                <span className="font-medium">{TYPE_LABEL[c.type] ?? c.type}</span>{" "}
-                <span className="text-neutral-400">· cible {c.targetUserId}</span>
-                {c.reason && <span className="text-neutral-500"> — {c.reason}</span>}
-              </span>
-              <time className="text-xs text-neutral-600">
-                {c.createdAt.toLocaleDateString("fr-FR")}
-              </time>
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+        <SectionCard title="Dernières sanctions">
+          {cases.length === 0 ? (
+            <p className="text-sm text-neutral-500">Aucune sanction enregistrée pour l'instant.</p>
+          ) : (
+            <ul className="flex flex-col divide-y divide-[var(--color-line)]">
+              {cases.map((c) => {
+                const t = TYPE[c.type] ?? { label: c.type, cls: "bg-neutral-500/15 text-neutral-400" };
+                return (
+                  <li key={c.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                    <div className="min-w-0">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${t.cls}`}>{t.label}</span>
+                      <span className="ml-2 text-sm text-neutral-400">Cible {c.targetUserId}</span>
+                      {c.reason && <p className="truncate text-sm text-neutral-500">{c.reason}</p>}
+                    </div>
+                    <time className="shrink-0 text-xs text-neutral-600">
+                      {c.createdAt.toLocaleDateString("fr-FR")}
+                    </time>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </SectionCard>
+      </div>
+    </>
   );
 }

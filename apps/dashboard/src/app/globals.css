@@ -1,14 +1,55 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
   --color-brand: #5865f2; /* blurple Discord */
   --color-brand-dark: #4752c4;
+  --color-brand-2: #8b5cf6; /* violet */
+
+  --color-surface: #0e0f14;
+  --color-surface-2: #16181f;
+  --color-line: #262932;
 }
 
 :root {
   color-scheme: dark;
 }
 
+html,
 body {
-  @apply bg-neutral-950 text-neutral-100 antialiased;
+  font-family: var(--font-sans);
+}
+
+body {
+  @apply bg-[#0a0b0f] text-neutral-100;
+}
+
+/* Barres de défilement discrètes */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2c2f3a transparent;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface-2)]/70 backdrop-blur-sm;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-sm text-neutral-100
+           outline-none transition placeholder:text-neutral-600
+           focus:border-brand focus:ring-2 focus:ring-brand/30;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-brand to-brand-dark px-5 py-2.5
+           text-sm font-semibold text-white shadow-lg shadow-brand/25 transition
+           hover:brightness-110 active:brightness-95 disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
+           px-4 py-2.5 text-sm font-medium text-neutral-200 transition hover:bg-[var(--color-surface-2)];
+  }
 }
