@@ -1,0 +1,32 @@
+{
+  "name": "drivebot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Drivebot — bot Discord officiel de Drivecord, contrôlable via dashboard web",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "db:generate": "prisma generate --schema=packages/database/prisma/schema.prisma",
+    "db:push": "prisma db push --schema=packages/database/prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=packages/database/prisma/schema.prisma",
+    "db:studio": "prisma studio --schema=packages/database/prisma/schema.prisma",
+    "bot:dev": "npm run dev -w @drivebot/bot",
+    "bot:start": "npm run start -w @drivebot/bot",
+    "bot:deploy-commands": "npm run deploy-commands -w @drivebot/bot",
+    "dashboard:dev": "npm run dev -w @drivebot/dashboard",
+    "dashboard:build": "npm run build -w @drivebot/dashboard",
+    "dashboard:start": "npm run start -w @drivebot/dashboard"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.28.1": true,
+    "prisma@6.19.3": true,
+    "sharp@0.34.5": true
+  }
+}

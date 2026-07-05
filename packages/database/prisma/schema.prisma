@@ -1,0 +1,108 @@
+// Drivebot — schéma de configuration par serveur Discord.
+// Le dashboard écrit ces tables ; le bot les lit (avec cache + reload).
+
+generator client {
+  provider      = "prisma-client-js"
+  // "native" pour le dev local ; "rhel-openssl-3.0.x" pour le runtime Vercel.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Un serveur Discord où Drivebot est présent. `id` = Discord guild ID.
+model Guild {
+  id        String   @id
+  name      String?
+  iconHash  String?
+  locale    Locale   @default(FR)
+  prefix    String   @default("!")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  welcome        WelcomeConfig?
+  moderationCfg  ModerationConfig?
+  autoRoles      AutoRole[]
+  embedTemplates EmbedTemplate[]
+  modCases       ModerationCase[]
+}
+
+enum Locale {
+  FR
+  EN
+}
+
+/// Messages de bienvenue / départ + option embed.
+model WelcomeConfig {
+  guildId String  @id
+  guild   Guild   @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  joinEnabled  Boolean @default(false)
+  joinChannel  String?
+  joinMessage  String  @default("Bienvenue {user} sur {server} ! 🎉")
+  joinUseEmbed Boolean @default(false)
+  joinEmbed    Json?
+
+  leaveEnabled Boolean @default(false)
+  leaveChannel String?
+  leaveMessage String  @default("{username} a quitté le serveur.")
+
+  updatedAt DateTime @updatedAt
+}
+
+/// Rôle(s) attribué(s) automatiquement à l'arrivée d'un membre.
+model AutoRole {
+  id      String @id @default(cuid())
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  roleId  String
+
+  @@unique([guildId, roleId])
+  @@index([guildId])
+}
+
+/// Réglages de modération et destination des logs.
+model ModerationConfig {
+  guildId    String  @id
+  guild      Guild   @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  logEnabled Boolean @default(false)
+  logChannel String?
+  updatedAt  DateTime @updatedAt
+}
+
+/// Historique des actions de modération (warn/kick/ban/timeout).
+model ModerationCase {
+  id           String             @id @default(cuid())
+  guildId      String
+  guild        Guild              @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  type         ModerationAction
+  targetUserId String
+  moderatorId  String
+  reason       String?
+  createdAt    DateTime           @default(now())
+
+  @@index([guildId, targetUserId])
+}
+
+enum ModerationAction {
+  WARN
+  KICK
+  BAN
+  UNBAN
+  TIMEOUT
+}
+
+/// Embeds sauvegardés depuis l'embed builder du dashboard.
+model EmbedTemplate {
+  id        String   @id @default(cuid())
+  guildId   String
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  name      String
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId])
+}

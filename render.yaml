@@ -1,0 +1,24 @@
+# Blueprint Render — bot Drivebot en Web Service (free) maintenu éveillé par UptimeRobot.
+# Le bot expose GET /health : configure un moniteur UptimeRobot HTTP(s) vers
+# https://<ton-service>.onrender.com/health toutes les 5 min pour éviter la mise
+# en veille du service gratuit (et donc garder la connexion gateway Discord active).
+services:
+  - type: web
+    name: drivebot
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run db:generate
+    startCommand: npm run bot:start
+    healthCheckPath: /health
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: INTERNAL_API_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
