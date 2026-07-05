@@ -55,3 +55,6 @@ export const IconSend = (p: P) => (
 export const IconTrash = (p: P) => (
   <svg {...base} {...p}><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" /></svg>
 );
+export const IconTicket = (p: P) => (
+  <svg {...base} {...p}><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z" /><path d="M13 6v12" strokeDasharray="2 2" /></svg>
+);

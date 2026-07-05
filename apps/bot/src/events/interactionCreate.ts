@@ -1,8 +1,21 @@
 import type { Interaction } from "discord.js";
 import { commandMap } from "../commands/index.js";
+import { openTicket, claimTicket, closeTicket } from "../lib/tickets.js";
 
-/** Dispatch des slash commands vers leur handler. */
+/** Dispatch des slash commands et des boutons (tickets). */
 export async function onInteractionCreate(interaction: Interaction): Promise<void> {
+  // Boutons du système de tickets.
+  if (interaction.isButton() && interaction.customId.startsWith("ticket:")) {
+    try {
+      if (interaction.customId === "ticket:open") await openTicket(interaction);
+      else if (interaction.customId === "ticket:claim") await claimTicket(interaction);
+      else if (interaction.customId === "ticket:close") await closeTicket(interaction);
+    } catch (err) {
+      console.error(`[ticket] erreur sur ${interaction.customId}:`, err);
+    }
+    return;
+  }
+
   if (!interaction.isChatInputCommand()) return;
 
   const command = commandMap.get(interaction.commandName);

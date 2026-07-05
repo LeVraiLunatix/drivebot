@@ -3,6 +3,7 @@ import { assertGuildAccess } from "@/lib/guard";
 import { getGuildMeta } from "@/lib/bot";
 import { loadWelcomeConfig } from "@/lib/config/welcome";
 import { loadModerationConfig } from "@/lib/config/moderation";
+import { loadTicketsConfig } from "@/lib/config/tickets";
 import { listTemplates } from "@/lib/config/embeds";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -14,6 +15,7 @@ import {
   IconWave,
   IconShield,
   IconSettings,
+  IconTicket,
 } from "@/components/ui/Icons";
 
 function Stat({ icon, value, label }: { icon: React.ReactNode; value: string | number; label: string }) {
@@ -72,10 +74,11 @@ export default async function GuildHomePage({
   const { guildId } = await params;
   const guild = await assertGuildAccess(guildId);
 
-  const [meta, welcome, moderation, templates] = await Promise.all([
+  const [meta, welcome, moderation, tickets, templates] = await Promise.all([
     getGuildMeta(guildId),
     loadWelcomeConfig(guildId),
     loadModerationConfig(guildId),
+    loadTicketsConfig(guildId),
     listTemplates(guildId),
   ]);
 
@@ -124,6 +127,13 @@ export default async function GuildHomePage({
           title="Bienvenue & autorole"
           desc={welcome.joinEnabled ? "Message d'arrivée actif" : "Aucun message d'arrivée"}
           enabled={welcome.joinEnabled || welcome.leaveEnabled || welcome.autoRoleIds.length > 0}
+        />
+        <FeatureRow
+          href={`${base}/tickets`}
+          icon={<IconTicket />}
+          title="Tickets"
+          desc={tickets.enabled ? "Support par tickets actif" : "Système désactivé"}
+          enabled={tickets.enabled}
         />
         <FeatureRow
           href={`${base}/moderation`}

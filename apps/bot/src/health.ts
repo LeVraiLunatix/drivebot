@@ -4,6 +4,7 @@ import { client } from "./client.js";
 import { invalidateGuildConfig } from "./lib/guildConfig.js";
 import { getGuildMeta } from "./lib/guildMeta.js";
 import { sendEmbedToChannel } from "./lib/sendEmbed.js";
+import { publishTicketPanel } from "./lib/tickets.js";
 
 /** Lit et parse un corps de requête JSON. */
 function readJson(req: import("node:http").IncomingMessage): Promise<unknown> {
@@ -84,6 +85,17 @@ export function startHealthServer(): void {
           res.end(JSON.stringify(result));
         })
         .catch(() => res.writeHead(400).end());
+      return;
+    }
+
+    const panelMatch = url.match(/^\/internal\/guilds\/(\d+)\/ticket-panel$/);
+    if (method === "POST" && panelMatch) {
+      publishTicketPanel(panelMatch[1])
+        .then((result) => {
+          res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(result));
+        })
+        .catch(() => res.writeHead(500).end());
       return;
     }
 

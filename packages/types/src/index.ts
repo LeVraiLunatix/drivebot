@@ -49,5 +49,6 @@ export interface GuildMeta {
   icon: string | null;
   memberCount: number;
   channels: GuildChannelInfo[];
+  categories: GuildChannelInfo[];
   roles: GuildRoleInfo[];
 }

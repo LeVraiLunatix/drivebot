@@ -56,6 +56,21 @@ export async function sendEmbedViaBot(
   }
 }
 
+/** Demande au bot de (re)publier le panneau de tickets dans le salon configuré. */
+export async function publishTicketPanelViaBot(
+  guildId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch(`${BOT_URL}/internal/guilds/${guildId}/ticket-panel`, {
+      method: "POST",
+      headers: { "x-internal-secret": SECRET },
+    });
+    return (await res.json()) as { ok: boolean; error?: string };
+  } catch {
+    return { ok: false, error: "Bot injoignable." };
+  }
+}
+
 /** Demande au bot de recharger la config d'un serveur après une sauvegarde. */
 export async function triggerReload(guildId: string): Promise<void> {
   try {

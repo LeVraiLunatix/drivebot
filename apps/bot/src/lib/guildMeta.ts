@@ -6,6 +6,7 @@ export interface GuildMeta {
   icon: string | null;
   memberCount: number;
   channels: { id: string; name: string }[];
+  categories: { id: string; name: string }[];
   roles: { id: string; name: string; color: number }[];
 }
 
@@ -24,6 +25,11 @@ export function getGuildMeta(guildId: string): GuildMeta | null {
     .sort((a, b) => a.rawPosition - b.rawPosition)
     .map((c) => ({ id: c.id, name: c.name }));
 
+  const categories = guild.channels.cache
+    .filter((c) => c.type === ChannelType.GuildCategory)
+    .sort((a, b) => a.rawPosition - b.rawPosition)
+    .map((c) => ({ id: c.id, name: c.name }));
+
   const roles = guild.roles.cache
     // On exclut @everyone et les rôles gérés par une intégration (bots, boosts).
     .filter((r) => r.id !== guild.id && !r.managed)
@@ -35,6 +41,7 @@ export function getGuildMeta(guildId: string): GuildMeta | null {
     icon: guild.icon,
     memberCount: guild.memberCount,
     channels,
+    categories,
     roles,
   };
 }

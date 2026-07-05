@@ -24,9 +24,11 @@ model Guild {
 
   welcome        WelcomeConfig?
   moderationCfg  ModerationConfig?
+  ticketConfig   TicketConfig?
   autoRoles      AutoRole[]
   embedTemplates EmbedTemplate[]
   modCases       ModerationCase[]
+  tickets        Ticket[]
 }
 
 enum Locale {
@@ -105,4 +107,46 @@ model EmbedTemplate {
   updatedAt DateTime @updatedAt
 
   @@index([guildId])
+}
+
+/// Configuration du système de tickets (support).
+model TicketConfig {
+  guildId          String   @id
+  guild            Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  enabled          Boolean  @default(false)
+  panelChannel     String? // salon où est posté le panneau
+  categoryId       String? // catégorie sous laquelle sont créés les tickets
+  logChannel       String?
+  staffRoleIds     String[] // rôles qui voient et gèrent les tickets
+  pingRoleId       String? // rôle ping à l'ouverture
+  panelTitle       String   @default("Support")
+  panelDescription String   @default("Besoin d'aide ? Clique sur le bouton ci-dessous pour ouvrir un ticket.")
+  panelColor       Int      @default(5793266)
+  buttonLabel      String   @default("Ouvrir un ticket")
+  buttonEmoji      String   @default("🎫")
+  openMessage      String   @default("Bonjour {user}, décris ta demande. Un membre du staff va te répondre.")
+  maxOpen          Int      @default(1) // tickets ouverts max par membre
+  counter          Int      @default(0) // compteur de numéros de ticket
+  updatedAt        DateTime @updatedAt
+}
+
+/// Un ticket ouvert (salon privé).
+model Ticket {
+  id        String       @id @default(cuid())
+  guildId   String
+  guild     Guild        @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  number    Int
+  channelId String       @unique
+  userId    String
+  status    TicketStatus @default(OPEN)
+  claimedBy String?
+  createdAt DateTime     @default(now())
+  closedAt  DateTime?
+
+  @@index([guildId, userId])
+}
+
+enum TicketStatus {
+  OPEN
+  CLOSED
 }
