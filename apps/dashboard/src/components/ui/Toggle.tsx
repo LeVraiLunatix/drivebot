@@ -13,7 +13,7 @@ export function Toggle({
 }) {
   const knob = (
     <span
-      className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+      className={`relative inline-block h-6 w-11 shrink-0 rounded-full align-middle transition ${
         checked ? "bg-brand" : "bg-neutral-700"
       }`}
     >
