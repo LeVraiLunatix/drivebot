@@ -41,22 +41,28 @@ Vérifie la santé : `curl http://localhost:3001/health` → `{"status":"ok",...
 
 ## Lancer le dashboard en local
 
+Le dashboard est **privé** : accès par un mot de passe unique (`DASHBOARD_PASSWORD`), et il ne gère qu'un seul serveur (`DRIVECORD_GUILD_ID`).
+
 ```bash
 cp apps/dashboard/.env.example apps/dashboard/.env.local   # puis renseigne les valeurs
 npx auth secret                                            # génère AUTH_SECRET (dans apps/dashboard)
 npm run dashboard:dev                                      # http://localhost:3000
 ```
 
-Dans le [Developer Portal](https://discord.com/developers/applications) → OAuth2, ajoute la
-redirect URL `http://localhost:3000/api/auth/callback/discord` (et l'équivalent en prod).
+## Déploiement du bot (Render + UptimeRobot)
 
-## Déploiement (Render + UptimeRobot)
+1. **New → Blueprint** sur Render (il lit `render.yaml`).
+2. Variables d'env : `DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `INTERNAL_API_SECRET`, `DATABASE_URL`.
+3. Crée un moniteur **UptimeRobot** HTTP(s) vers `https://<service>.onrender.com/health`, intervalle **5 min**
+   → empêche la mise en veille du service gratuit et **maintient la gateway Discord** 24/7.
 
-1. Pousse ce repo sur GitHub, puis **New → Blueprint** sur Render (il lit `render.yaml`).
-2. Renseigne les variables d'env (`DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `INTERNAL_API_SECRET`, `DATABASE_URL`).
-3. Une fois déployé, crée un moniteur **UptimeRobot** de type HTTP(s) vers
-   `https://<ton-service>.onrender.com/health`, intervalle **5 min**.
-   → cela empêche le service gratuit de s'endormir et **maintient la connexion gateway Discord** 24/7 sans allumer ton PC.
+## Déploiement du dashboard (Vercel)
+
+1. **New Project** → importe le repo GitHub.
+2. **Root Directory** = `apps/dashboard` (Next.js détecté automatiquement ; le build lance `prisma generate`).
+3. Variables d'env : `AUTH_SECRET`, `DASHBOARD_PASSWORD`, `DRIVECORD_GUILD_ID`, `DATABASE_URL`,
+   `INTERNAL_API_SECRET`, et `BOT_INTERNAL_URL` = l'URL Render du bot (`https://<service>.onrender.com`).
+   `INTERNAL_API_SECRET` doit être **identique** à celui du bot.
 
 ## Variables d'environnement
 
@@ -65,7 +71,7 @@ Voir [`.env.example`](.env.example). `INTERNAL_API_SECRET` doit être **identiqu
 ## Roadmap
 
 - [x] Fondation monorepo + schéma Prisma + bot (bienvenue, autorole, départ, slash commands, santé/reload)
-- [x] Dashboard Next.js : login Discord OAuth + sélecteur de serveurs (bot présent / à inviter)
+- [x] Dashboard Next.js : accès par mot de passe (propriétaire), gestion du seul serveur Drivecord
 - [x] Config **Bienvenue/autorole** : page dashboard (menus salons/rôles) → DB → reload bot
 - [x] Config **Paramètres** (langue, préfixe) + **Modération** (salon de logs + historique)
 - [x] **Embed builder** visuel avec preview live (envoi dans un salon + modèles sauvegardés)
