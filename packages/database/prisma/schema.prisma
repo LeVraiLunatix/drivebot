@@ -26,6 +26,7 @@ model Guild {
   moderationCfg  ModerationConfig?
   ticketConfig   TicketConfig?
   verification   VerificationConfig?
+  suggestionCfg  SuggestionConfig?
   autoRoles      AutoRole[]
   embedTemplates EmbedTemplate[]
   modCases       ModerationCase[]
@@ -164,4 +165,13 @@ model VerificationConfig {
   panelDescription String   @default("Clique sur le bouton puis recopie le code affiché pour accéder au serveur.")
   panelColor       Int      @default(5793266)
   updatedAt        DateTime @updatedAt
+}
+
+/// Salon de suggestions (forum) où le bot ajoute les réactions de vote.
+model SuggestionConfig {
+  guildId   String   @id
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  enabled   Boolean  @default(false)
+  channelId String?
+  updatedAt DateTime @updatedAt
 }

@@ -15,6 +15,7 @@ async function fetchGuildConfig(guildId: string) {
       welcome: true,
       moderationCfg: true,
       verification: true,
+      suggestionCfg: true,
       autoRoles: true,
     },
   });
