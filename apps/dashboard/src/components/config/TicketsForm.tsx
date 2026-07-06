@@ -44,6 +44,24 @@ export function TicketsForm({
 
   const toggleStaff = (id: string) =>
     set("staffRoleIds", s.staffRoleIds.includes(id) ? s.staffRoleIds.filter((r) => r !== id) : [...s.staffRoleIds, id]);
+  const togglePing = (id: string) =>
+    set("pingRoleIds", s.pingRoleIds.includes(id) ? s.pingRoleIds.filter((r) => r !== id) : [...s.pingRoleIds, id]);
+
+  const roleChips = (selected: string[], toggle: (id: string) => void) => (
+    <div className="flex flex-wrap gap-2">
+      {roles.length === 0 && <span className="text-sm text-neutral-500">Aucun rôle.</span>}
+      {roles.map((r) => {
+        const on = selected.includes(r.id);
+        return (
+          <button type="button" key={r.id} onClick={() => toggle(r.id)}
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${on ? "border-brand bg-brand/15 text-white" : "border-[var(--color-line)] text-neutral-300 hover:bg-white/5"}`}>
+            <span className="size-2.5 rounded-full" style={{ backgroundColor: r.color ? `#${r.color.toString(16).padStart(6, "0")}` : "#99aab5" }} />
+            {r.name}
+          </button>
+        );
+      })}
+    </div>
+  );
 
   const payload = (): TicketsFormData => ({ ...s, panelColor: hexToInt(colorHex) });
 
@@ -122,12 +140,6 @@ export function TicketsForm({
               {opt(channels, s.logChannel).map((c) => <option key={c.id} value={c.id}>#{c.name}</option>)}
             </select>
           </Field>
-          <Field label="Rôle ping à l'ouverture">
-            <select className="field-input" value={s.pingRoleId ?? ""} onChange={(e) => set("pingRoleId", e.target.value || null)}>
-              <option value="">— Aucun —</option>
-              {opt(roles, s.pingRoleId).map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
-          </Field>
           <Field label="Tickets ouverts max / membre">
             <input type="number" min={1} max={10} className="field-input" value={s.maxOpen} onChange={(e) => set("maxOpen", Number(e.target.value))} />
           </Field>
@@ -139,19 +151,11 @@ export function TicketsForm({
         </div>
         <div className="mt-4">
           <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Rôles staff (voient et gèrent les tickets)</span>
-          <div className="flex flex-wrap gap-2">
-            {roles.length === 0 && <span className="text-sm text-neutral-500">Aucun rôle.</span>}
-            {roles.map((r) => {
-              const on = s.staffRoleIds.includes(r.id);
-              return (
-                <button type="button" key={r.id} onClick={() => toggleStaff(r.id)}
-                  className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${on ? "border-brand bg-brand/15 text-white" : "border-[var(--color-line)] text-neutral-300 hover:bg-white/5"}`}>
-                  <span className="size-2.5 rounded-full" style={{ backgroundColor: r.color ? `#${r.color.toString(16).padStart(6, "0")}` : "#99aab5" }} />
-                  {r.name}
-                </button>
-              );
-            })}
-          </div>
+          {roleChips(s.staffRoleIds, toggleStaff)}
+        </div>
+        <div className="mt-4">
+          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Rôles mentionnés à l'ouverture (ping)</span>
+          {roleChips(s.pingRoleIds, togglePing)}
         </div>
       </SectionCard>
 

@@ -8,7 +8,7 @@ export interface TicketsFormData {
   categoryId: string | null;
   logChannel: string | null;
   staffRoleIds: string[];
-  pingRoleId: string | null;
+  pingRoleIds: string[];
   panelTitle: string;
   panelDescription: string;
   panelColor: number;
@@ -24,7 +24,7 @@ const DEFAULTS: TicketsFormData = {
   categoryId: null,
   logChannel: null,
   staffRoleIds: [],
-  pingRoleId: null,
+  pingRoleIds: [],
   panelTitle: "Support",
   panelDescription:
     "Besoin d'aide ? Clique sur le bouton ci-dessous pour ouvrir un ticket.",
@@ -44,7 +44,7 @@ export async function loadTicketsConfig(guildId: string): Promise<TicketsFormDat
     categoryId: c.categoryId,
     logChannel: c.logChannel,
     staffRoleIds: c.staffRoleIds,
-    pingRoleId: c.pingRoleId,
+    pingRoleIds: c.pingRoleIds,
     panelTitle: c.panelTitle,
     panelDescription: c.panelDescription,
     panelColor: c.panelColor,
@@ -67,7 +67,7 @@ export async function saveTicketsConfig(
     categoryId: d.categoryId,
     logChannel: d.logChannel,
     staffRoleIds: d.staffRoleIds,
-    pingRoleId: d.pingRoleId,
+    pingRoleIds: d.pingRoleIds,
     panelTitle: d.panelTitle.slice(0, 256) || "Support",
     panelDescription: d.panelDescription.slice(0, 2000),
     panelColor: d.panelColor,

@@ -129,8 +129,8 @@ export async function openTicket(interaction: ButtonInteraction): Promise<void> 
       new ButtonBuilder().setCustomId("ticket:close").setLabel("Fermer").setStyle(ButtonStyle.Danger).setEmoji("🔒"),
     );
 
-    const ping = cfg.pingRoleId ? `<@&${cfg.pingRoleId}> ` : "";
-    await channel.send({ content: `${ping}<@${interaction.user.id}>`, embeds: [embed], components: [row] });
+    const ping = cfg.pingRoleIds.map((id) => `<@&${id}>`).join(" ");
+    await channel.send({ content: `${ping} <@${interaction.user.id}>`.trim(), embeds: [embed], components: [row] });
     await logTicket(cfg, guild.id, `🎫 Ticket **#${counter}** ouvert par <@${interaction.user.id}>`);
 
     await interaction.editReply({ content: `✅ Ton ticket a été créé : ${channel}` });

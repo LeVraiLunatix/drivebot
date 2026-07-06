@@ -119,7 +119,7 @@ model TicketConfig {
   categoryId       String? // catégorie sous laquelle sont créés les tickets
   logChannel       String?
   staffRoleIds     String[] // rôles qui voient et gèrent les tickets
-  pingRoleId       String? // rôle ping à l'ouverture
+  pingRoleIds      String[] // rôles mentionnés à l'ouverture
   panelTitle       String   @default("Support")
   panelDescription String   @default("Besoin d'aide ? Clique sur le bouton ci-dessous pour ouvrir un ticket.")
   panelColor       Int      @default(5793266)

@@ -84,6 +84,10 @@ export function WelcomeForm({
           >
             <textarea value={joinMessage} onChange={(e) => setJoinMessage(e.target.value)} rows={3} className="field-input" />
           </Field>
+          <div>
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Aperçu de l'embed</span>
+            <WelcomeEmbedPreview kind="join" message={joinMessage} serverName={meta?.name} />
+          </div>
         </div>
       </SectionCard>
 
@@ -105,6 +109,10 @@ export function WelcomeForm({
           <Field label="Message">
             <textarea value={leaveMessage} onChange={(e) => setLeaveMessage(e.target.value)} rows={2} className="field-input" />
           </Field>
+          <div>
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Aperçu de l'embed</span>
+            <WelcomeEmbedPreview kind="leave" message={leaveMessage} serverName={meta?.name} />
+          </div>
         </div>
       </SectionCard>
 
@@ -140,6 +148,65 @@ export function WelcomeForm({
       </SectionCard>
 
       <SaveBar pending={pending} msg={msg} onSave={save} />
+    </div>
+  );
+}
+
+/** Aperçu fidèle de l'embed que le bot envoie à l'arrivée / au départ. */
+function WelcomeEmbedPreview({
+  kind,
+  message,
+  serverName,
+}: {
+  kind: "join" | "leave";
+  message: string;
+  serverName?: string;
+}) {
+  const server = serverName ?? "le serveur";
+  const rendered = message
+    .replaceAll("{user}", "@NouveauMembre")
+    .replaceAll("{username}", "NouveauMembre")
+    .replaceAll("{server}", server)
+    .replaceAll("{memberCount}", "42");
+
+  const isJoin = kind === "join";
+  const color = isJoin ? "#57f287" : "#ed4245";
+  const title = isJoin ? "🎉 Un nouveau membre nous rejoint !" : "👋 Un membre nous a quittés";
+
+  return (
+    <div className="rounded-2xl bg-[#313338] p-3">
+      <div className="flex gap-3 rounded-lg border-l-4 bg-[#2b2d31] p-3" style={{ borderColor: color }}>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold text-[#dbdee1]">{server}</p>
+          <p className="mt-0.5 font-semibold text-white">{title}</p>
+          {rendered && <p className="mt-1 whitespace-pre-wrap text-sm text-[#dbdee1]">{rendered}</p>}
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            <div>
+              <p className="text-xs font-semibold text-white">👤 Membre</p>
+              <p className="text-xs text-[#00a8fc]">@NouveauMembre</p>
+            </div>
+            {isJoin ? (
+              <>
+                <div>
+                  <p className="text-xs font-semibold text-white">🔢 Position</p>
+                  <p className="text-xs text-[#dbdee1]">42ᵉ membre</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-white">📅 Compte créé</p>
+                  <p className="text-xs text-[#dbdee1]">il y a 2 ans</p>
+                </div>
+              </>
+            ) : (
+              <div>
+                <p className="text-xs font-semibold text-white">👥 Membres restants</p>
+                <p className="text-xs text-[#dbdee1]">41</p>
+              </div>
+            )}
+          </div>
+          <p className="mt-2 text-xs text-[#949ba4]">ID : 123456789 • aujourd'hui</p>
+        </div>
+        <div className="size-14 shrink-0 rounded-full bg-[#5865f2]/40" />
+      </div>
     </div>
   );
 }

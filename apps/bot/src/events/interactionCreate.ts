@@ -2,6 +2,7 @@ import type { Interaction } from "discord.js";
 import { commandMap } from "../commands/index.js";
 import { openTicket, claimTicket, closeTicket } from "../lib/tickets.js";
 import { startVerification, submitVerification } from "../lib/verification.js";
+import { toggleSelfRole } from "../lib/selfroles.js";
 
 /** Dispatch des slash commands, boutons (tickets, vérif) et modals (vérif). */
 export async function onInteractionCreate(interaction: Interaction): Promise<void> {
@@ -24,6 +25,12 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
   }
   if (interaction.isModalSubmit() && interaction.customId.startsWith("verify:submit")) {
     await submitVerification(interaction).catch((e) => console.error("[verify]", e));
+    return;
+  }
+
+  // Rôles auto-attribuables (notifications).
+  if (interaction.isButton() && interaction.customId.startsWith("selfrole:")) {
+    await toggleSelfRole(interaction).catch((e) => console.error("[selfrole]", e));
     return;
   }
 
