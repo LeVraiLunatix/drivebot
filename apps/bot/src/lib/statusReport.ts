@@ -57,15 +57,34 @@ async function buildStatusEmbed(): Promise<EmbedBuilder> {
     .setTimestamp();
 }
 
-/** Poste un embed d'état dans le salon configuré d'un serveur (si présent). */
-async function postStatusForGuild(guildId: string, channelId: string, embed: EmbedBuilder): Promise<void> {
+/** Édite le message de rapport existant, ou en envoie un nouveau si introuvable
+ *  (premier rapport, message supprimé, salon changé…). */
+async function postStatusForGuild(
+  guildId: string,
+  channelId: string,
+  messageId: string | null,
+  embed: EmbedBuilder,
+): Promise<void> {
   const guild = client.guilds.cache.get(guildId);
   if (!guild) return;
 
   const channel = guild.channels.cache.get(channelId);
   if (!(channel instanceof TextChannel)) return;
 
-  await channel.send({ embeds: [embed] }).catch(() => {});
+  if (messageId) {
+    const existing = await channel.messages.fetch(messageId).catch(() => null);
+    if (existing) {
+      await existing.edit({ embeds: [embed] }).catch(() => {});
+      return;
+    }
+  }
+
+  const sent = await channel.send({ embeds: [embed] }).catch(() => null);
+  if (sent) {
+    await prisma.botStatusConfig
+      .update({ where: { guildId }, data: { messageId: sent.id } })
+      .catch(() => {});
+  }
 }
 
 /** Poste le rapport d'état dans tous les serveurs où la fonctionnalité est activée. */
@@ -77,7 +96,7 @@ async function postStatusToAllGuilds(): Promise<void> {
 
   const embed = await buildStatusEmbed();
   for (const cfg of configs) {
-    if (cfg.channelId) await postStatusForGuild(cfg.guildId, cfg.channelId, embed);
+    if (cfg.channelId) await postStatusForGuild(cfg.guildId, cfg.channelId, cfg.messageId, embed);
   }
 }
 
