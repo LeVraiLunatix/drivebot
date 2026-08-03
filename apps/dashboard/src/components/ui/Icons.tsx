@@ -61,3 +61,6 @@ export const IconTicket = (p: P) => (
 export const IconVerified = (p: P) => (
   <svg {...base} {...p}><path d="M12 3l2.3 1.6 2.8.1 1 2.6 2.3 1.7-.7 2.7.7 2.7-2.3 1.7-1 2.6-2.8.1L12 21l-2.3-1.6-2.8-.1-1-2.6L3.6 15l.7-2.7-.7-2.7 2.3-1.7 1-2.6 2.8-.1z" /><path d="m9 12 2 2 4-4" /></svg>
 );
+export const IconActivity = (p: P) => (
+  <svg {...base} {...p}><path d="M3 12h4l2 7 4-14 2 7h6" /></svg>
+);

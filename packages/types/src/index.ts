@@ -52,3 +52,12 @@ export interface GuildMeta {
   categories: GuildChannelInfo[];
   roles: GuildRoleInfo[];
 }
+
+/** État du process bot, exposé par l'API interne pour le dashboard. */
+export interface BotStatus {
+  online: true;
+  pingMs: number;
+  uptimeSeconds: number;
+  guildCount: number;
+  memoryMb: number;
+}

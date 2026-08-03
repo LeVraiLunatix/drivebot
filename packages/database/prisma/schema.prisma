@@ -27,6 +27,7 @@ model Guild {
   ticketConfig   TicketConfig?
   verification   VerificationConfig?
   suggestionCfg  SuggestionConfig?
+  statusCfg      BotStatusConfig?
   autoRoles      AutoRole[]
   embedTemplates EmbedTemplate[]
   modCases       ModerationCase[]
@@ -169,6 +170,15 @@ model VerificationConfig {
 
 /// Salon de suggestions (forum) où le bot ajoute les réactions de vote.
 model SuggestionConfig {
+  guildId   String   @id
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  enabled   Boolean  @default(false)
+  channelId String?
+  updatedAt DateTime @updatedAt
+}
+
+/// Rapport d'état automatique (ping, uptime, statut) posté périodiquement dans un salon.
+model BotStatusConfig {
   guildId   String   @id
   guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
   enabled   Boolean  @default(false)

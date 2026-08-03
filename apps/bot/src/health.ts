@@ -49,6 +49,19 @@ export function startHealthServer(): void {
       return;
     }
 
+    if (method === "GET" && url === "/internal/status") {
+      const status: import("@drivebot/types").BotStatus = {
+        online: true,
+        pingMs: Math.round(client.ws.ping),
+        uptimeSeconds: Math.round(process.uptime()),
+        guildCount: client.guilds.cache.size,
+        memoryMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+      };
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(status));
+      return;
+    }
+
     if (method === "GET" && url === "/internal/guilds") {
       const ids = [...client.guilds.cache.keys()];
       res.writeHead(200, { "Content-Type": "application/json" });

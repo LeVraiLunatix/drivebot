@@ -5,6 +5,7 @@ import { loadWelcomeConfig } from "@/lib/config/welcome";
 import { loadModerationConfig } from "@/lib/config/moderation";
 import { loadTicketsConfig } from "@/lib/config/tickets";
 import { loadVerificationConfig } from "@/lib/config/verification";
+import { loadStatusConfig } from "@/lib/config/status";
 import { listTemplates } from "@/lib/config/embeds";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -18,6 +19,7 @@ import {
   IconSettings,
   IconTicket,
   IconVerified,
+  IconActivity,
 } from "@/components/ui/Icons";
 
 function Stat({ icon, value, label }: { icon: React.ReactNode; value: string | number; label: string }) {
@@ -76,13 +78,14 @@ export default async function GuildHomePage({
   const { guildId } = await params;
   const guild = await assertGuildAccess(guildId);
 
-  const [meta, welcome, moderation, tickets, verification, templates] = await Promise.all([
+  const [meta, welcome, moderation, tickets, verification, templates, statusCfg] = await Promise.all([
     getGuildMeta(guildId),
     loadWelcomeConfig(guildId),
     loadModerationConfig(guildId),
     loadTicketsConfig(guildId),
     loadVerificationConfig(guildId),
     listTemplates(guildId),
+    loadStatusConfig(guildId),
   ]);
 
   const base = `/dashboard/${guildId}`;
@@ -165,6 +168,13 @@ export default async function GuildHomePage({
           title="Paramètres"
           desc="Langue et préfixe du bot"
           enabled
+        />
+        <FeatureRow
+          href={`${base}/status`}
+          icon={<IconActivity />}
+          title="Statut du bot"
+          desc={statusCfg.enabled ? "Rapport auto toutes les 30 min" : "Rapport automatique désactivé"}
+          enabled={statusCfg.enabled}
         />
       </div>
     </>
