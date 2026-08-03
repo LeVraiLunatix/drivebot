@@ -60,4 +60,7 @@ export interface BotStatus {
   uptimeSeconds: number;
   guildCount: number;
   memoryMb: number;
+  memberCount: number;
+  dbOk: boolean;
+  startedAt: string; // ISO 8601
 }

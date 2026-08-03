@@ -183,5 +183,6 @@ model BotStatusConfig {
   guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
   enabled   Boolean  @default(false)
   channelId String?
+  messageId String? // message édité à chaque rapport, plutôt que d'en renvoyer un nouveau
   updatedAt DateTime @updatedAt
 }
