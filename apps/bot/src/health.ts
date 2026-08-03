@@ -3,6 +3,7 @@ import { config } from "./config.js";
 import { client } from "./client.js";
 import { invalidateGuildConfig } from "./lib/guildConfig.js";
 import { getGuildMeta } from "./lib/guildMeta.js";
+import { collectBotStatus } from "./lib/statusReport.js";
 import { sendEmbedToChannel } from "./lib/sendEmbed.js";
 import { publishTicketPanel } from "./lib/tickets.js";
 import { publishVerificationPanel } from "./lib/verification.js";
@@ -50,15 +51,12 @@ export function startHealthServer(): void {
     }
 
     if (method === "GET" && url === "/internal/status") {
-      const status: import("@drivebot/types").BotStatus = {
-        online: true,
-        pingMs: Math.round(client.ws.ping),
-        uptimeSeconds: Math.round(process.uptime()),
-        guildCount: client.guilds.cache.size,
-        memoryMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
-      };
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(status));
+      collectBotStatus()
+        .then((status) => {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(status));
+        })
+        .catch(() => res.writeHead(500).end());
       return;
     }
 

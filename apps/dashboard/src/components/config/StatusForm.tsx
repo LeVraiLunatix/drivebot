@@ -75,6 +75,9 @@ export function StatusForm({
             <LiveStat value={formatUptime(status.uptimeSeconds)} label="Uptime" />
             <LiveStat value={`${status.guildCount}`} label="Serveurs" />
             <LiveStat value={`${status.memoryMb} MB`} label="Mémoire" />
+            <LiveStat value={`${status.memberCount}`} label="Membres" />
+            <LiveStat value={status.dbOk ? "✅ OK" : "❌ Erreur"} label="Base de données" />
+            <LiveStat value={new Date(status.startedAt).toLocaleString("fr-FR")} label="Dernier redémarrage" />
           </div>
         ) : (
           <p className="text-sm text-neutral-500">Drivebot ne répond pas actuellement.</p>
