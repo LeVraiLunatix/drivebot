@@ -2,6 +2,7 @@ import { Events } from "discord.js";
 import { config } from "./config.js";
 import { client } from "./client.js";
 import { startHealthServer } from "./health.js";
+import { startStatusReports } from "./lib/statusReport.js";
 import { onGuildMemberAdd } from "./events/guildMemberAdd.js";
 import { onGuildMemberRemove } from "./events/guildMemberRemove.js";
 import { onInteractionCreate } from "./events/interactionCreate.js";
@@ -9,6 +10,7 @@ import { onThreadCreate } from "./events/threadCreate.js";
 
 client.once(Events.ClientReady, (c) => {
   console.log(`[bot] connecté en tant que ${c.user.tag}`);
+  startStatusReports();
 });
 
 client.on(Events.GuildMemberAdd, onGuildMemberAdd);

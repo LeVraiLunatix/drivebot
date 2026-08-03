@@ -12,6 +12,7 @@ import {
   IconShield,
   IconTicket,
   IconVerified,
+  IconActivity,
 } from "@/components/ui/Icons";
 
 interface NavItem {
@@ -42,6 +43,7 @@ export function Sidebar({
     { href: `${base}/tickets`, label: "Tickets", icon: <IconTicket /> },
     { href: `${base}/embeds`, label: "Embeds", icon: <IconMessage /> },
     { href: `${base}/moderation`, label: "Modération", icon: <IconShield /> },
+    { href: `${base}/status`, label: "Statut", icon: <IconActivity /> },
   ];
 
   const isActive = (href: string) =>

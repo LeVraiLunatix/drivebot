@@ -1,5 +1,5 @@
 import "server-only";
-import type { GuildMeta } from "@drivebot/types";
+import type { BotStatus, GuildMeta } from "@drivebot/types";
 
 const BOT_URL = process.env.BOT_INTERNAL_URL ?? "http://localhost:3001";
 const SECRET = process.env.INTERNAL_API_SECRET ?? "";
@@ -13,6 +13,20 @@ export async function getGuildMeta(guildId: string): Promise<GuildMeta | null> {
     });
     if (!res.ok) return null;
     return (await res.json()) as GuildMeta;
+  } catch {
+    return null;
+  }
+}
+
+/** État en direct du bot (ping, uptime, mémoire). null si bot injoignable. */
+export async function getBotStatus(): Promise<BotStatus | null> {
+  try {
+    const res = await fetch(`${BOT_URL}/internal/status`, {
+      headers: { "x-internal-secret": SECRET },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as BotStatus;
   } catch {
     return null;
   }
