@@ -29,5 +29,7 @@ export async function onGuildMemberAdd(member: GuildMember): Promise<void> {
   const channel = member.guild.channels.cache.get(w.joinChannel);
   if (!(channel instanceof TextChannel)) return;
 
-  await channel.send({ embeds: [buildJoinEmbed(member, w.joinMessage)] }).catch(() => {});
+  await channel
+    .send({ content: `<@${member.id}>`, embeds: [buildJoinEmbed(member, w.joinMessage)] })
+    .catch(() => {});
 }
