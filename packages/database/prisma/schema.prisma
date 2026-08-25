@@ -32,6 +32,7 @@ model Guild {
   embedTemplates EmbedTemplate[]
   modCases       ModerationCase[]
   tickets        Ticket[]
+  reactionRolePanels ReactionRolePanel[]
 }
 
 enum Locale {
@@ -185,4 +186,35 @@ model BotStatusConfig {
   channelId String?
   messageId String? // message édité à chaque rapport, plutôt que d'en renvoyer un nouveau
   updatedAt DateTime @updatedAt
+}
+
+/// Panneau de rôles à la carte (boutons) publié dans un salon.
+model ReactionRolePanel {
+  id          String               @id @default(cuid())
+  guildId     String
+  guild       Guild                @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  channelId   String?
+  messageId   String? // message édité à chaque republication, plutôt que d'en renvoyer un nouveau
+  title       String               @default("Rôles")
+  description String               @default("Clique sur un bouton pour obtenir ou retirer un rôle.")
+  color       Int                  @default(5793266)
+  multiple    Boolean              @default(true) // false = un seul rôle du panneau à la fois (radio)
+  roles       ReactionRoleOption[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([guildId])
+}
+
+/// Un bouton rôle dans un panneau de rôles à la carte.
+model ReactionRoleOption {
+  id       String            @id @default(cuid())
+  panelId  String
+  panel    ReactionRolePanel @relation(fields: [panelId], references: [id], onDelete: Cascade)
+  roleId   String
+  label    String
+  emoji    String?
+  position Int               @default(0)
+
+  @@index([panelId])
 }

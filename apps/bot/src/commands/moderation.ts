@@ -108,6 +108,40 @@ export const timeout: Command = {
   },
 };
 
+export const unban: Command = {
+  data: new SlashCommandBuilder()
+    .setName("unban")
+    .setDescription("Débannit un membre du serveur.")
+    .addUserOption((o) =>
+      o.setName("membre").setDescription("Utilisateur à débannir (ID)").setRequired(true),
+    )
+    .addStringOption((o) => o.setName("raison").setDescription("Raison"))
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+  async execute(interaction) {
+    const user = interaction.options.getUser("membre", true);
+    const reason = interaction.options.getString("raison");
+    if (!interaction.guild) {
+      await interaction.reply({ content: "Cette commande doit être utilisée sur un serveur.", ephemeral: true });
+      return;
+    }
+    try {
+      await interaction.guild.bans.remove(user.id, reason ?? undefined);
+    } catch {
+      await interaction.reply({ content: "Ce membre n'est pas banni ou une erreur est survenue.", ephemeral: true });
+      return;
+    }
+    await recordCase({
+      guild: interaction.guild,
+      type: "UNBAN",
+      targetUserId: user.id,
+      targetTag: user.tag,
+      moderatorId: interaction.user.id,
+      reason,
+    });
+    await interaction.reply({ content: `✅ ${user.tag} a été débanni.`, ephemeral: true });
+  },
+};
+
 export const warn: Command = {
   data: new SlashCommandBuilder()
     .setName("warn")

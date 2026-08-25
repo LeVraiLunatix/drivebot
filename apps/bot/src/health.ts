@@ -7,6 +7,7 @@ import { collectBotStatus } from "./lib/statusReport.js";
 import { sendEmbedToChannel } from "./lib/sendEmbed.js";
 import { publishTicketPanel } from "./lib/tickets.js";
 import { publishVerificationPanel } from "./lib/verification.js";
+import { publishReactionRolePanel } from "./lib/reactionRoles.js";
 
 /** Lit et parse un corps de requête JSON. */
 function readJson(req: import("node:http").IncomingMessage): Promise<unknown> {
@@ -28,6 +29,7 @@ function readJson(req: import("node:http").IncomingMessage): Promise<unknown> {
  *    service web Render éveillé, ce qui maintient la connexion gateway).
  *  - GET /internal/guilds          → IDs des serveurs où le bot est présent.
  *  - GET /internal/guilds/:id/meta → salons + rôles d'un serveur (menus dashboard).
+ *  - POST /internal/guilds/:id/reaction-role-panel/:panelId → publie un panneau de rôles.
  *  - POST /internal/reload         → invalide le cache de config d'un serveur.
  *  Les routes /internal/* sont protégées par un secret partagé. */
 export function startHealthServer(): void {
@@ -114,6 +116,17 @@ export function startHealthServer(): void {
     const verifMatch = url.match(/^\/internal\/guilds\/(\d+)\/verify-panel$/);
     if (method === "POST" && verifMatch) {
       publishVerificationPanel(verifMatch[1])
+        .then((result) => {
+          res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(result));
+        })
+        .catch(() => res.writeHead(500).end());
+      return;
+    }
+
+    const rrPanelMatch = url.match(/^\/internal\/guilds\/(\d+)\/reaction-role-panel\/([\w-]+)$/);
+    if (method === "POST" && rrPanelMatch) {
+      publishReactionRolePanel(rrPanelMatch[1], rrPanelMatch[2])
         .then((result) => {
           res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
           res.end(JSON.stringify(result));

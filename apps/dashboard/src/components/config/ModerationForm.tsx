@@ -52,7 +52,7 @@ export function ModerationForm({
           </select>
         </Field>
         <div className="mt-4 flex flex-wrap gap-2">
-          {["/kick", "/ban", "/timeout", "/warn"].map((c) => (
+          {["/kick", "/ban", "/unban", "/timeout", "/warn"].map((c) => (
             <code key={c} className="rounded-lg bg-white/5 px-2 py-1 text-xs text-neutral-400">{c}</code>
           ))}
         </div>

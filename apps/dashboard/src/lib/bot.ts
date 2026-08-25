@@ -100,6 +100,22 @@ export async function publishVerifPanelViaBot(
   }
 }
 
+/** Demande au bot de (re)publier un panneau de rôles à la carte. */
+export async function publishReactionRolePanelViaBot(
+  guildId: string,
+  panelId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch(
+      `${BOT_URL}/internal/guilds/${guildId}/reaction-role-panel/${panelId}`,
+      { method: "POST", headers: { "x-internal-secret": SECRET } },
+    );
+    return (await res.json()) as { ok: boolean; error?: string };
+  } catch {
+    return { ok: false, error: "Bot injoignable." };
+  }
+}
+
 /** Demande au bot de recharger la config d'un serveur après une sauvegarde. */
 export async function triggerReload(guildId: string): Promise<void> {
   try {
