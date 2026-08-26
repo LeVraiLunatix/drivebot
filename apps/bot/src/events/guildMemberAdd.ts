@@ -1,9 +1,12 @@
 import { type GuildMember, TextChannel } from "discord.js";
 import { getGuildConfig } from "../lib/guildConfig.js";
 import { buildJoinEmbed } from "../lib/welcomeEmbed.js";
+import { checkRaid } from "../lib/protection.js";
 
-/** À l'arrivée : rôle non-vérifié (si vérif active), autorôles, embed de bienvenue. */
+/** À l'arrivée : anti-raid, rôle non-vérifié (si vérif active), autorôles, embed de bienvenue. */
 export async function onGuildMemberAdd(member: GuildMember): Promise<void> {
+  await checkRaid(member).catch((e) => console.error("[protection] checkRaid:", e));
+
   const cfg = await getGuildConfig(member.guild.id);
 
   // Rôle « non vérifié » si le système de vérification est actif.

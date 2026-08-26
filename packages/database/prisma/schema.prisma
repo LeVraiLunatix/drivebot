@@ -33,6 +33,7 @@ model Guild {
   modCases       ModerationCase[]
   tickets        Ticket[]
   reactionRolePanels ReactionRolePanel[]
+  protection     ProtectionConfig?
 }
 
 enum Locale {
@@ -217,4 +218,28 @@ model ReactionRoleOption {
   position Int               @default(0)
 
   @@index([panelId])
+}
+
+/// Anti-spam / anti-raid automatique. Les sanctions passent par le même
+/// historique que la modération manuelle (ModerationCase + salon de logs).
+model ProtectionConfig {
+  guildId String @id
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  antiSpamEnabled      Boolean          @default(false)
+  spamMessageThreshold Int              @default(5) // messages...
+  spamIntervalSeconds  Int              @default(5) // ...sur cette fenêtre glissante
+  spamAction           ProtectionAction @default(TIMEOUT)
+  spamTimeoutMinutes   Int              @default(10)
+
+  antiRaidEnabled     Boolean @default(false)
+  raidJoinThreshold   Int     @default(5) // arrivées...
+  raidIntervalSeconds Int     @default(10) // ...sur cette fenêtre glissante
+
+  updatedAt DateTime @updatedAt
+}
+
+enum ProtectionAction {
+  TIMEOUT
+  KICK
 }

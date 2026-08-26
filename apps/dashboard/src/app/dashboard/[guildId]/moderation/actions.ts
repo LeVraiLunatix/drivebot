@@ -2,6 +2,7 @@
 
 import { assertGuildAccess } from "@/lib/guard";
 import { saveModerationConfig, type ModerationFormData } from "@/lib/config/moderation";
+import { saveProtectionConfig, type ProtectionFormData } from "@/lib/config/protection";
 import type { SaveState } from "@/app/dashboard/[guildId]/welcome/actions";
 
 export async function saveModerationAction(
@@ -15,5 +16,15 @@ export async function saveModerationAction(
     logEnabled: data.logEnabled,
     logChannel: data.logChannel || null,
   });
+  return { ok: true, message: "Enregistré ✓" };
+}
+
+export async function saveProtectionAction(
+  guildId: string,
+  data: ProtectionFormData,
+): Promise<SaveState> {
+  if (!guildId) return { ok: false, message: "Serveur manquant." };
+  await assertGuildAccess(guildId);
+  await saveProtectionConfig(guildId, data);
   return { ok: true, message: "Enregistré ✓" };
 }

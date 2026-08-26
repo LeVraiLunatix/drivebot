@@ -1,7 +1,9 @@
 import { assertGuildAccess } from "@/lib/guard";
 import { getGuildMeta } from "@/lib/bot";
 import { loadModerationConfig, recentCases } from "@/lib/config/moderation";
+import { loadProtectionConfig } from "@/lib/config/protection";
 import { ModerationForm } from "@/components/config/ModerationForm";
+import { ProtectionForm } from "@/components/config/ProtectionForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/Card";
 import { IconShield } from "@/components/ui/Icons";
@@ -22,9 +24,10 @@ export default async function ModerationPage({
   const { guildId } = await params;
   await assertGuildAccess(guildId);
 
-  const [meta, initial, cases] = await Promise.all([
+  const [meta, initial, protection, cases] = await Promise.all([
     getGuildMeta(guildId),
     loadModerationConfig(guildId),
+    loadProtectionConfig(guildId),
     recentCases(guildId),
   ]);
 
@@ -38,6 +41,8 @@ export default async function ModerationPage({
 
       <div className="flex flex-col gap-6">
         <ModerationForm guildId={guildId} meta={meta} initial={initial} />
+
+        <ProtectionForm guildId={guildId} initial={protection} />
 
         <SectionCard title="Dernières sanctions">
           {cases.length === 0 ? (

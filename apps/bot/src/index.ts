@@ -7,6 +7,7 @@ import { onGuildMemberAdd } from "./events/guildMemberAdd.js";
 import { onGuildMemberRemove } from "./events/guildMemberRemove.js";
 import { onInteractionCreate } from "./events/interactionCreate.js";
 import { onThreadCreate } from "./events/threadCreate.js";
+import { onMessageCreate } from "./events/messageCreate.js";
 
 client.once(Events.ClientReady, (c) => {
   console.log(`[bot] connecté en tant que ${c.user.tag}`);
@@ -17,6 +18,7 @@ client.on(Events.GuildMemberAdd, onGuildMemberAdd);
 client.on(Events.GuildMemberRemove, onGuildMemberRemove);
 client.on(Events.InteractionCreate, onInteractionCreate);
 client.on(Events.ThreadCreate, onThreadCreate);
+client.on(Events.MessageCreate, onMessageCreate);
 
 // Serveur HTTP (santé UptimeRobot + reload de config depuis le dashboard).
 startHealthServer();
