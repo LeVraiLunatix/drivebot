@@ -17,13 +17,13 @@ const backup = `/home/ubuntu/drivebot-backups/${tag}`;
 const env = dotenv.parse(fs.readFileSync(".env"));
 const updates = Object.fromEntries(["DISCORD_TOKEN", "DISCORD_CLIENT_ID", "DISCORD_DEV_GUILD_ID", "MANAGED_BOTS_JSON"].map((key) => [key, env[key]]));
 if (Object.values(updates).some((value) => !value)) throw new Error("Configuration manquante.");
-execFileSync("tar", ["-czf", archive, "apps/bot/src", "packages/types/src"], { stdio: "pipe" });
+execFileSync("tar", ["-czf", archive, "apps/bot/src", "packages/types/src", "packages/database/prisma/schema.prisma"], { stdio: "pipe" });
 execFileSync("scp", ["-q", "-i", key, archive, `${host}:${remoteArchive}`], { stdio: "pipe" });
 let backedUp = false;
 try {
-  ssh(`set -eu; cd /home/ubuntu/drivebot; mkdir -p -m 700 ${backup}; tar -czf ${backup}/before.tgz apps/bot/src packages/types/src .env; chmod 600 ${backup}/before.tgz`);
+  ssh(`set -eu; cd /home/ubuntu/drivebot; mkdir -p -m 700 ${backup}; tar -czf ${backup}/before.tgz apps/bot/src packages/types/src packages/database/prisma/schema.prisma .env; chmod 600 ${backup}/before.tgz`);
   backedUp = true;
-  ssh(`set -eu; cd /home/ubuntu/drivebot; tar -xzf ${remoteArchive}; node node_modules/typescript/bin/tsc --noEmit -p apps/bot/tsconfig.json`);
+  ssh(`set -eu; cd /home/ubuntu/drivebot; tar -xzf ${remoteArchive}; node node_modules/prisma/build/index.js generate --schema=packages/database/prisma/schema.prisma; node node_modules/typescript/bin/tsc --noEmit -p apps/bot/tsconfig.json`);
   const python = "import sys,json,pathlib,re,os; p=pathlib.Path('/home/ubuntu/drivebot/.env'); s=p.read_text(); values=json.load(sys.stdin); " +
     "s='\\n'.join(line for line in s.splitlines() if not any(line.startswith(k+'=') for k in values)); " +
     "s+='\\n'+''.join(k+'='+chr(39)+v+chr(39)+'\\n' for k,v in values.items()); " +
