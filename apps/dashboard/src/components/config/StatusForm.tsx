@@ -18,9 +18,9 @@ function formatUptime(seconds: number): string {
 
 function LiveStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-xl bg-white/5 p-3 text-center">
+    <div className="rounded-xl bg-wash p-3 text-center">
       <p className="text-lg font-bold leading-none">{value}</p>
-      <p className="mt-1 text-xs text-neutral-500">{label}</p>
+      <p className="mt-1 text-xs text-muted">{label}</p>
     </div>
   );
 }
@@ -80,7 +80,7 @@ export function StatusForm({
             <LiveStat value={new Date(status.startedAt).toLocaleString("fr-FR")} label="Dernier redémarrage" />
           </div>
         ) : (
-          <p className="text-sm text-neutral-500">Drivebot ne répond pas actuellement.</p>
+          <p className="text-sm text-muted">Drivebot ne répond pas actuellement.</p>
         )}
       </SectionCard>
 

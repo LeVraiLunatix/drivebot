@@ -49,12 +49,12 @@ export function TicketsForm({
 
   const roleChips = (selected: string[], toggle: (id: string) => void) => (
     <div className="flex flex-wrap gap-2">
-      {roles.length === 0 && <span className="text-sm text-neutral-500">Aucun rôle.</span>}
+      {roles.length === 0 && <span className="text-sm text-muted">Aucun rôle.</span>}
       {roles.map((r) => {
         const on = selected.includes(r.id);
         return (
           <button type="button" key={r.id} onClick={() => toggle(r.id)}
-            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${on ? "border-brand bg-brand/15 text-white" : "border-[var(--color-line)] text-neutral-300 hover:bg-white/5"}`}>
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${on ? "border-accent bg-accent/15 text-foreground" : "border-[var(--color-line)] text-muted-2 hover:bg-wash"}`}>
             <span className="size-2.5 rounded-full" style={{ backgroundColor: r.color ? `#${r.color.toString(16).padStart(6, "0")}` : "#99aab5" }} />
             {r.name}
           </button>
@@ -84,7 +84,7 @@ export function TicketsForm({
         icon={<IconMessage />}
         aside={<Toggle checked={s.enabled} onChange={(v) => set("enabled", v)} />}
       >
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted">
           Drivebot a besoin de la permission <b>Gérer les salons</b> pour créer les tickets.
         </p>
       </SectionCard>
@@ -109,20 +109,20 @@ export function TicketsForm({
         </SectionCard>
 
         <div className="flex flex-col gap-4">
-          <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">Aperçu du panneau</span>
+          <span className="eyebrow">Aperçu du panneau</span>
           <div className="rounded-2xl bg-[#313338] p-4">
             <div className="rounded-lg border-l-4 bg-[#2b2d31] p-3" style={{ borderColor: colorHex }}>
               <p className="font-semibold text-white">{s.panelTitle || "Support"}</p>
               <p className="mt-1 whitespace-pre-wrap text-sm text-[#dbdee1]">{s.panelDescription}</p>
             </div>
-            <button type="button" className="mt-2 rounded bg-brand px-3 py-1.5 text-sm font-medium text-white" disabled>
+            <button type="button" className="mt-2 rounded bg-[#5865f2] px-3 py-1.5 text-sm font-medium text-white" disabled>
               {s.buttonEmoji} {s.buttonLabel || "Ouvrir un ticket"}
             </button>
           </div>
           <button type="button" onClick={publish} disabled={pending} className="btn-ghost justify-center">
             <IconSend width={18} height={18} /> Publier le panneau dans le salon
           </button>
-          <p className="text-xs text-neutral-600">Enregistre d'abord tes réglages, puis publie.</p>
+          <p className="text-xs text-muted">Enregistre d'abord tes réglages, puis publie.</p>
         </div>
       </div>
 
@@ -150,11 +150,11 @@ export function TicketsForm({
           </Field>
         </div>
         <div className="mt-4">
-          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Rôles staff (voient et gèrent les tickets)</span>
+          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Rôles staff (voient et gèrent les tickets)</span>
           {roleChips(s.staffRoleIds, toggleStaff)}
         </div>
         <div className="mt-4">
-          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Rôles mentionnés à l'ouverture (ping)</span>
+          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Rôles mentionnés à l'ouverture (ping)</span>
           {roleChips(s.pingRoleIds, togglePing)}
         </div>
       </SectionCard>

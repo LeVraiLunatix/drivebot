@@ -20,14 +20,25 @@ export function SectionCard({
         <div className="mb-5 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             {icon && (
-              <div className="mt-0.5 grid size-9 place-items-center rounded-xl bg-brand/15 text-brand">
+              <div
+                className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-[var(--radius)] border"
+                style={{
+                  borderColor: "var(--line)",
+                  background: "var(--wash)",
+                  color: "var(--accent)",
+                }}
+              >
                 {icon}
               </div>
             )}
             <div>
-              {title && <h2 className="font-semibold text-neutral-100">{title}</h2>}
+              {title && (
+                <h2 className="display text-[0.9375rem] font-semibold text-foreground">
+                  {title}
+                </h2>
+              )}
               {description && (
-                <p className="mt-0.5 text-sm text-neutral-500">{description}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{description}</p>
               )}
             </div>
           </div>
@@ -51,11 +62,22 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">
-        {label}
-      </span>
+      <span className="eyebrow mb-2 block">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-neutral-600">{hint}</span>}
+      {hint && <span className="mt-1.5 block text-xs text-muted">{hint}</span>}
     </label>
+  );
+}
+
+/**
+ * Intertitre de groupe — le pendant des chapitres numérotés du site
+ * (« 01 — LES OUTILS »). Le filet occupe l'espace restant.
+ */
+export function GroupLabel({ children }: { children: ReactNode }) {
+  return (
+    <div className="mb-4 flex items-center gap-4">
+      <span className="eyebrow whitespace-nowrap">{children}</span>
+      <span className="h-px flex-1" style={{ background: "var(--line)" }} />
+    </div>
   );
 }

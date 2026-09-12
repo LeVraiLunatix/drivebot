@@ -91,7 +91,7 @@ export function VerificationForm({
         </SectionCard>
 
         <div className="flex flex-col gap-4">
-          <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">Aperçu</span>
+          <span className="eyebrow">Aperçu</span>
           <div className="rounded-2xl bg-[#313338] p-4">
             <div className="rounded-lg border-l-4 bg-[#2b2d31] p-3" style={{ borderColor: colorHex }}>
               <p className="font-semibold text-white">{s.panelTitle || "Vérification"}</p>
@@ -102,7 +102,7 @@ export function VerificationForm({
           <button type="button" onClick={publish} disabled={pending} className="btn-ghost justify-center">
             <IconSend width={18} height={18} /> Publier le panneau dans le salon
           </button>
-          <p className="text-xs text-neutral-600">Enregistre d'abord, puis publie.</p>
+          <p className="text-xs text-muted">Enregistre d'abord, puis publie.</p>
         </div>
       </div>
 

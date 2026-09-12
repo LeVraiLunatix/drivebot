@@ -11,17 +11,25 @@ export function LoginForm() {
 
   return (
     <form action={action} className="flex flex-col gap-3">
-      <input
-        type="password"
-        name="password"
-        placeholder="Mot de passe"
-        autoFocus
-        className="field-input text-center"
-      />
-      <button type="submit" disabled={pending} className="btn-primary w-full justify-center">
+      <label className="block">
+        <span className="eyebrow mb-2 block">Mot de passe</span>
+        <input
+          type="password"
+          name="password"
+          autoFocus
+          autoComplete="current-password"
+          className="field-input font-mono"
+          aria-invalid={state.error ? true : undefined}
+        />
+      </label>
+      <button type="submit" disabled={pending} className="btn-primary w-full">
         {pending ? "Connexion…" : "Entrer"}
       </button>
-      {state.error && <span className="text-sm text-red-400">{state.error}</span>}
+      {state.error && (
+        <span role="alert" className="text-sm" style={{ color: "var(--danger)" }}>
+          {state.error}
+        </span>
+      )}
     </form>
   );
 }

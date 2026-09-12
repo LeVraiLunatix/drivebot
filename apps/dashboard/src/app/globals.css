@@ -1,55 +1,270 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+/*
+  Dashboard Drivebot — aligné sur la D.A. de cordsuite.app.
 
-  --color-brand: #5865f2; /* blurple Discord */
-  --color-brand-dark: #4752c4;
-  --color-brand-2: #8b5cf6; /* violet */
+  Toutes les couleurs passent par des tokens, jamais par un `white/10` codé en
+  dur dans le JSX : le mode clair doit pouvoir inverser l'ensemble d'un bloc,
+  et un `white/10` écrit en dur reste blanc sur fond blanc.
+*/
 
-  --color-surface: #0e0f14;
-  --color-surface-2: #16181f;
-  --color-line: #262932;
+@theme inline {
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--fg);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-wash: var(--wash);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-ok: var(--ok);
+  --color-ok-ink: var(--ok-ink);
+  --color-warn: var(--warn);
+  --color-warn-ink: var(--warn-ink);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: var(--font-space), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jet), "Consolas", "Lucida Console", monospace;
+
+  --radius: 0.75rem;
+  --radius-sm: calc(var(--radius) * 0.55);
+  --radius-lg: calc(var(--radius) * 1.6);
+  --radius-xl: calc(var(--radius) * 2.6);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
+  --bg: #060509;
+  --bg-2: #0b0a12;
+  --fg: #f5f2ee;
+  --muted: #a7a4b2; /* ~6.9:1 sur --bg */
+  --muted-2: #c2bfcb; /* ~10:1 — mentions secondaires */
+
+  --line: rgba(255, 255, 255, 0.1);
+  --line-2: rgba(255, 255, 255, 0.25);
+  --wash: rgba(255, 255, 255, 0.05);
+  --wash-2: rgba(255, 255, 255, 0.12);
+  --surface: rgba(11, 10, 18, 0.72);
+  --surface-2: rgba(17, 15, 26, 0.86);
+
+  /* Texte posé sur un aplat `--fg` (boutons pleins). */
+  --on-fg: #0a0a0a;
+  /* Texte posé sur l'accent. */
+  --on-accent: #ffffff;
+
+  --accent: #8b5cff;
+  --accent-2: #d24bef;
+  --sel-bg: color-mix(in oklch, var(--accent) 55%, black);
+  --sel-fg: #fff;
+
+  /* États. Les nuances Tailwind sont calibrées pour du texte sur fond sombre :
+     sur du papier elles deviennent illisibles, d'où des tokens dédiés. */
+  --ok: #6ee7b7;
+  --ok-ink: #34d399;
+  --warn: #fcd34d;
+  --warn-ink: #fbbf24;
+  --danger: #fca5a5;
+
+  --glow: radial-gradient(
+    60rem 40rem at 50% -12rem,
+    rgba(139, 92, 255, 0.2),
+    transparent 70%
+  );
+
   color-scheme: dark;
 }
 
-html,
-body {
-  font-family: var(--font-sans);
+/* ── Mode clair ────────────────────────────────────────────────────────────
+   Pas un simple négatif : les mêmes violets saturés vibrent sur fond clair.
+   On descend l'accent en luminosité et on garde des fonds légèrement chauds,
+   pour rester dans la famille Drivecord plutôt que sur un blanc clinique. */
+[data-theme="light"] {
+  --bg: #f4f1ec;
+  --bg-2: #fffefc;
+  --fg: #16131d;
+  --muted: #5d5870; /* ~6.6:1 sur --bg */
+  --muted-2: #423e51;
+
+  --line: rgba(22, 19, 29, 0.12);
+  --line-2: rgba(22, 19, 29, 0.24);
+  --wash: rgba(22, 19, 29, 0.05);
+  --wash-2: rgba(22, 19, 29, 0.09);
+  --surface: rgba(255, 254, 252, 0.78);
+  --surface-2: rgba(255, 255, 255, 0.94);
+
+  --on-fg: #faf8f5;
+  --on-accent: #ffffff;
+
+  --accent: #6a35d8;
+  --accent-2: #a51fc0;
+  --sel-bg: color-mix(in oklch, var(--accent) 26%, white);
+  --sel-fg: #16131d;
+
+  --ok: #047857;
+  --ok-ink: #059669;
+  --warn: #92600b;
+  --warn-ink: #b45309;
+  --danger: #b91c1c;
+
+  --glow: radial-gradient(
+    60rem 40rem at 50% -12rem,
+    rgba(106, 53, 216, 0.12),
+    transparent 70%
+  );
+
+  color-scheme: light;
 }
 
-body {
-  @apply bg-[#0a0b0f] text-neutral-100;
+/* Dans `@layer base`, et surtout PAS hors couche : une règle hors couche bat
+   toujours une règle en couche, quelle que soit la spécificité. */
+@layer base {
+  * {
+    border-color: var(--line);
+    min-width: 0;
+  }
+
+  html,
+  body {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  ::selection {
+    background: var(--sel-bg);
+    color: var(--sel-fg);
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /* Barres de défilement discrètes */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2c2f3a transparent;
+  scrollbar-color: var(--line-2) transparent;
 }
 
 @layer components {
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
   .card {
-    @apply rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface-2)]/70 backdrop-blur-sm;
+    @apply rounded-[var(--radius-lg)] border bg-surface backdrop-blur-sm;
+    border-color: var(--line);
   }
 
+  .card-hover {
+    @apply transition duration-200;
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  .card-hover:hover {
+    border-color: var(--line-2);
+    background: var(--surface-2);
+  }
+
+  /* ── Typographie ──────────────────────────────────────────────────────── */
+  /* Micro-titre de section : mono, capitales, filet. Reprend le rythme des
+     chapitres numérotés du site (« 01 — LES OUTILS »). */
+  .eyebrow {
+    @apply font-mono text-[0.6875rem] uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+  }
+
+  .display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Champs ───────────────────────────────────────────────────────────── */
   .field-input {
-    @apply w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-sm text-neutral-100
-           outline-none transition placeholder:text-neutral-600
-           focus:border-brand focus:ring-2 focus:ring-brand/30;
+    @apply w-full rounded-[var(--radius)] border px-3.5 py-2.5 text-sm outline-none transition;
+    border-color: var(--line);
+    background: var(--wash);
+    color: var(--fg);
   }
 
+  .field-input::placeholder {
+    color: var(--muted);
+    opacity: 0.7;
+  }
+
+  .field-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 25%, transparent);
+  }
+
+  /* ── Boutons ──────────────────────────────────────────────────────────── */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-brand to-brand-dark px-5 py-2.5
-           text-sm font-semibold text-white shadow-lg shadow-brand/25 transition
-           hover:brightness-110 active:brightness-95 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius)] px-5 py-2.5
+           text-sm font-semibold transition disabled:opacity-50;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: var(--on-accent);
+    box-shadow: 0 8px 24px -12px color-mix(in oklch, var(--accent) 70%, transparent);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    filter: brightness(0.95);
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
-           px-4 py-2.5 text-sm font-medium text-neutral-200 transition hover:bg-[var(--color-surface-2)];
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius)] border px-4 py-2.5
+           text-sm font-medium transition;
+    border-color: var(--line);
+    background: var(--wash);
+    color: var(--fg);
   }
+
+  .btn-ghost:hover {
+    border-color: var(--line-2);
+    background: var(--wash-2);
+  }
+
+  /* ── Pastilles d'état ─────────────────────────────────────────────────── */
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[0.6875rem] uppercase;
+    letter-spacing: 0.08em;
+    border-color: var(--line);
+    color: var(--muted);
+  }
+
+  .pill-ok {
+    border-color: color-mix(in oklch, var(--ok-ink) 40%, transparent);
+    background: color-mix(in oklch, var(--ok-ink) 12%, transparent);
+    color: var(--ok-ink);
+  }
+
+  .pill-off {
+    background: var(--wash);
+  }
+
+  .pill-danger {
+    border-color: color-mix(in oklch, var(--danger) 40%, transparent);
+    background: color-mix(in oklch, var(--danger) 12%, transparent);
+    color: var(--danger);
+  }
+}
+
+/* Nav mobile à défilement horizontal : la barre réservée par `scrollbar-width:
+   thin` (posé plus haut sur `*`) mange une bande grise sous les libellés. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

@@ -49,7 +49,7 @@ export function ReactionRolesManager({
       )}
 
       {panels.length === 0 && (
-        <p className="text-sm text-neutral-500">Aucun panneau pour l&apos;instant.</p>
+        <p className="text-sm text-muted">Aucun panneau pour l&apos;instant.</p>
       )}
 
       {panels.map((panel) => (
@@ -131,7 +131,7 @@ function PanelCard({
           type="button"
           onClick={remove}
           disabled={pending}
-          className="rounded-lg p-2 text-neutral-500 hover:bg-red-500/10 hover:text-red-400"
+          className="rounded-lg p-2 text-muted hover:bg-red-500/10 hover:text-red-400"
           aria-label="Supprimer le panneau"
         >
           <IconTrash width={18} height={18} />
@@ -175,7 +175,7 @@ function PanelCard({
         </div>
 
         <div className="flex flex-col gap-3">
-          <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+          <span className="eyebrow">
             Rôles ({s.roles.length}/25)
           </span>
           <div className="flex flex-col gap-2">
@@ -218,7 +218,7 @@ function PanelCard({
                   <button
                     type="button"
                     onClick={() => removeRole(i)}
-                    className="shrink-0 rounded-lg p-2 text-neutral-500 hover:bg-red-500/10 hover:text-red-400"
+                    className="shrink-0 rounded-lg p-2 text-muted hover:bg-red-500/10 hover:text-red-400"
                     aria-label="Retirer ce rôle"
                   >
                     <IconTrash width={16} height={16} />

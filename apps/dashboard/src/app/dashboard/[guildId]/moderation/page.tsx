@@ -46,19 +46,19 @@ export default async function ModerationPage({
 
         <SectionCard title="Dernières sanctions">
           {cases.length === 0 ? (
-            <p className="text-sm text-neutral-500">Aucune sanction enregistrée pour l'instant.</p>
+            <p className="text-sm text-muted">Aucune sanction enregistrée pour l'instant.</p>
           ) : (
             <ul className="flex flex-col divide-y divide-[var(--color-line)]">
               {cases.map((c) => {
-                const t = TYPE[c.type] ?? { label: c.type, cls: "bg-neutral-500/15 text-neutral-400" };
+                const t = TYPE[c.type] ?? { label: c.type, cls: "bg-wash text-muted-2" };
                 return (
                   <li key={c.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                     <div className="min-w-0">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${t.cls}`}>{t.label}</span>
-                      <span className="ml-2 text-sm text-neutral-400">Cible {c.targetUserId}</span>
-                      {c.reason && <p className="truncate text-sm text-neutral-500">{c.reason}</p>}
+                      <span className="ml-2 text-sm text-muted-2">Cible {c.targetUserId}</span>
+                      {c.reason && <p className="truncate text-sm text-muted">{c.reason}</p>}
                     </div>
-                    <time className="shrink-0 text-xs text-neutral-600">
+                    <time className="shrink-0 text-xs text-muted">
                       {c.createdAt.toLocaleDateString("fr-FR")}
                     </time>
                   </li>

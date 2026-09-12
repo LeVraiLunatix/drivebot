@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   IconHome,
   IconSettings,
@@ -22,6 +23,11 @@ interface NavItem {
   icon: ReactNode;
 }
 
+interface NavGroup {
+  label: string | null;
+  items: NavItem[];
+}
+
 export function Sidebar({
   guildId,
   name,
@@ -36,16 +42,38 @@ export function Sidebar({
   const pathname = usePathname();
   const base = `/dashboard/${guildId}`;
 
-  const items: NavItem[] = [
-    { href: base, label: "Vue d'ensemble", icon: <IconHome /> },
-    { href: `${base}/settings`, label: "Paramètres", icon: <IconSettings /> },
-    { href: `${base}/welcome`, label: "Bienvenue", icon: <IconWave /> },
-    { href: `${base}/verification`, label: "Vérification", icon: <IconVerified /> },
-    { href: `${base}/tickets`, label: "Tickets", icon: <IconTicket /> },
-    { href: `${base}/reaction-roles`, label: "Rôles à la carte", icon: <IconTag /> },
-    { href: `${base}/embeds`, label: "Embeds", icon: <IconMessage /> },
-    { href: `${base}/moderation`, label: "Modération", icon: <IconShield /> },
-    { href: `${base}/status`, label: "Statut", icon: <IconActivity /> },
+  /* Regroupé par moment de la vie du serveur plutôt qu'en liste plate : à neuf
+     entrées, une colonne sans repères devient un mur. */
+  const groups: NavGroup[] = [
+    { label: null, items: [{ href: base, label: "Vue d'ensemble", icon: <IconHome /> }] },
+    {
+      label: "Arrivée",
+      items: [
+        { href: `${base}/welcome`, label: "Bienvenue", icon: <IconWave /> },
+        { href: `${base}/verification`, label: "Vérification", icon: <IconVerified /> },
+      ],
+    },
+    {
+      label: "Animation",
+      items: [
+        { href: `${base}/reaction-roles`, label: "Rôles à la carte", icon: <IconTag /> },
+        { href: `${base}/embeds`, label: "Embeds", icon: <IconMessage /> },
+      ],
+    },
+    {
+      label: "Modération",
+      items: [
+        { href: `${base}/moderation`, label: "Modération & logs", icon: <IconShield /> },
+        { href: `${base}/tickets`, label: "Tickets", icon: <IconTicket /> },
+      ],
+    },
+    {
+      label: "Système",
+      items: [
+        { href: `${base}/settings`, label: "Paramètres", icon: <IconSettings /> },
+        { href: `${base}/status`, label: "Statut du bot", icon: <IconActivity /> },
+      ],
+    },
   ];
 
   const isActive = (href: string) =>
@@ -57,30 +85,64 @@ export function Sidebar({
       <Link
         key={item.href}
         href={item.href}
-        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-          active
-            ? "bg-brand/15 text-white"
-            : "text-neutral-400 hover:bg-white/5 hover:text-neutral-100"
-        }`}
+        aria-current={active ? "page" : undefined}
+        /* `shrink-0` : la nav mobile est un flex qui défile horizontalement —
+           sans ça les libellés se compressent les uns sur les autres. */
+        className="relative flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[var(--radius)] px-3 py-2 text-sm transition"
+        style={{
+          background: active ? "var(--wash)" : undefined,
+          color: active ? "var(--fg)" : "var(--muted)",
+          fontWeight: active ? 500 : 400,
+        }}
       >
-        <span className={active ? "text-brand" : "text-neutral-500"}>{item.icon}</span>
+        {active && (
+          <span
+            aria-hidden
+            className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-full"
+            style={{ background: "linear-gradient(var(--accent), var(--accent-2))" }}
+          />
+        )}
+        <span style={{ color: active ? "var(--accent)" : "inherit", opacity: active ? 1 : 0.7 }}>
+          {item.icon}
+        </span>
         {item.label}
       </Link>
     );
   };
 
+  const nav = (
+    <>
+      {groups.map((g, i) => (
+        <div key={g.label ?? i} className={g.label ? "mt-5" : undefined}>
+          {g.label && <p className="eyebrow mb-2 px-3">{g.label}</p>}
+          <div className="flex flex-col gap-0.5">{g.items.map(link)}</div>
+        </div>
+      ))}
+    </>
+  );
+
   const Header = (
     <div className="flex items-center gap-3 px-2">
       {iconUrl ? (
-        <Image src={iconUrl} alt="" width={40} height={40} className="size-10 rounded-xl" />
+        <Image
+          src={iconUrl}
+          alt=""
+          width={40}
+          height={40}
+          className="size-10 rounded-[var(--radius)] border"
+          style={{ borderColor: "var(--line)" }}
+        />
       ) : (
-        <div className="grid size-10 place-items-center rounded-xl bg-brand/20 text-sm font-bold text-brand">
+        <div
+          className="grid size-10 place-items-center rounded-[var(--radius)] border font-mono text-xs font-semibold"
+          style={{ borderColor: "var(--line)", background: "var(--wash)", color: "var(--accent)" }}
+        >
           {name.slice(0, 2).toUpperCase()}
         </div>
       )}
       <div className="min-w-0">
-        <p className="truncate font-semibold text-neutral-100">{name}</p>
-        <p className="text-xs text-neutral-500">Drivebot</p>
+        <p className="truncate text-sm font-medium text-foreground">{name}</p>
+        <p className="eyebrow">Drivebot</p>
       </div>
     </div>
   );
@@ -88,19 +150,36 @@ export function Sidebar({
   return (
     <>
       {/* Desktop */}
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col gap-6 border-r border-[var(--color-line)] bg-[var(--color-surface)]/60 p-4 backdrop-blur-md lg:flex">
+      <aside
+        className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col gap-6 overflow-y-auto border-r p-4 backdrop-blur-md lg:flex"
+        style={{ borderColor: "var(--line)", background: "var(--surface)" }}
+      >
         {Header}
-        <nav className="flex flex-1 flex-col gap-1">{items.map(link)}</nav>
-        {footer}
+        <nav className="flex-1">{nav}</nav>
+        <div
+          className="flex items-center justify-between gap-2 border-t pt-3"
+          style={{ borderColor: "var(--line)" }}
+        >
+          {footer}
+          <ThemeToggle />
+        </div>
       </aside>
 
       {/* Mobile : barre supérieure */}
-      <div className="border-b border-[var(--color-line)] bg-[var(--color-surface)]/60 p-3 backdrop-blur-md lg:hidden">
-        <div className="mb-3 flex items-center justify-between">
+      <div
+        className="sticky top-0 z-20 border-b p-3 backdrop-blur-md lg:hidden"
+        style={{ borderColor: "var(--line)", background: "var(--surface)" }}
+      >
+        <div className="mb-3 flex items-center justify-between gap-2">
           {Header}
-          {footer}
+          <div className="flex items-center gap-2">
+            {footer}
+            <ThemeToggle />
+          </div>
         </div>
-        <nav className="flex gap-1 overflow-x-auto">{items.map(link)}</nav>
+        <nav className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1">
+          {groups.flatMap((g) => g.items).map(link)}
+        </nav>
       </div>
     </>
   );

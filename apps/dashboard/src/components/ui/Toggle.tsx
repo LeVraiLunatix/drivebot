@@ -13,14 +13,22 @@ export function Toggle({
 }) {
   const knob = (
     <span
-      className={`relative inline-block h-6 w-11 shrink-0 rounded-full align-middle transition ${
-        checked ? "bg-brand" : "bg-neutral-700"
-      }`}
+      className="relative inline-block h-6 w-11 shrink-0 rounded-full border align-middle transition"
+      style={{
+        borderColor: checked ? "transparent" : "var(--line-2)",
+        background: checked
+          ? "linear-gradient(135deg, var(--accent), var(--accent-2))"
+          : "var(--wash)",
+      }}
     >
       <span
-        className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ${
-          checked ? "left-[1.375rem]" : "left-0.5"
+        className={`absolute top-[0.1875rem] size-[1.125rem] rounded-full transition-all duration-200 ${
+          checked ? "left-[1.4375rem]" : "left-[0.1875rem]"
         }`}
+        style={{
+          background: checked ? "var(--on-accent)" : "var(--muted)",
+          transitionTimingFunction: "var(--ease-out-expo)",
+        }}
       />
     </span>
   );
@@ -48,8 +56,8 @@ export function Toggle({
       className="flex w-full items-center justify-between gap-4 text-left"
     >
       <span>
-        <span className="block font-medium text-neutral-100">{label}</span>
-        {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
+        <span className="block text-sm font-medium text-foreground">{label}</span>
+        {hint && <span className="mt-0.5 block text-xs text-muted">{hint}</span>}
       </span>
       {knob}
     </button>

@@ -85,7 +85,7 @@ export function WelcomeForm({
             <textarea value={joinMessage} onChange={(e) => setJoinMessage(e.target.value)} rows={3} className="field-input" />
           </Field>
           <div>
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Aperçu de l'embed</span>
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Aperçu de l'embed</span>
             <WelcomeEmbedPreview kind="join" message={joinMessage} serverName={meta?.name} />
           </div>
         </div>
@@ -110,7 +110,7 @@ export function WelcomeForm({
             <textarea value={leaveMessage} onChange={(e) => setLeaveMessage(e.target.value)} rows={2} className="field-input" />
           </Field>
           <div>
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">Aperçu de l'embed</span>
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Aperçu de l'embed</span>
             <WelcomeEmbedPreview kind="leave" message={leaveMessage} serverName={meta?.name} />
           </div>
         </div>
@@ -122,7 +122,7 @@ export function WelcomeForm({
         icon={<IconTag />}
       >
         <div className="flex flex-wrap gap-2">
-          {roles.length === 0 && <span className="text-sm text-neutral-500">Aucun rôle disponible.</span>}
+          {roles.length === 0 && <span className="text-sm text-muted">Aucun rôle disponible.</span>}
           {roles.map((r) => {
             const checked = autoRoleIds.includes(r.id);
             return (
@@ -132,8 +132,8 @@ export function WelcomeForm({
                 onClick={() => toggleRole(r.id)}
                 className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${
                   checked
-                    ? "border-brand bg-brand/15 text-white"
-                    : "border-[var(--color-line)] text-neutral-300 hover:bg-white/5"
+                    ? "border-accent bg-accent/15 text-foreground"
+                    : "border-[var(--color-line)] text-muted-2 hover:bg-wash"
                 }`}
               >
                 <span

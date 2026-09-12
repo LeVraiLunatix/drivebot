@@ -78,7 +78,7 @@ export function ProtectionForm({
             </Field>
           )}
         </div>
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-muted">
           Les messages en excès sont supprimés et le membre est sanctionné. Les membres avec la
           permission <b>Gérer les messages</b> ne sont jamais concernés.
         </p>
@@ -112,12 +112,12 @@ export function ProtectionForm({
             />
           </Field>
         </div>
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-muted">
           Tous les membres arrivés pendant la rafale sont expulsés dès que le seuil est franchi.
         </p>
       </SectionCard>
 
-      <p className="text-xs text-neutral-600">
+      <p className="text-xs text-muted">
         Les sanctions automatiques utilisent le même historique et le même salon de logs que la
         modération manuelle, configurés ci-dessus.
       </p>

@@ -133,11 +133,11 @@ export function EmbedBuilder({
 
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">Champs</span>
+            <span className="eyebrow">Champs</span>
             <button
               type="button"
               onClick={() => set("fields", [...s.fields, { name: "", value: "", inline: false }])}
-              className="rounded-lg border border-[var(--color-line)] px-2.5 py-1 text-xs hover:bg-white/5"
+              className="rounded-lg border border-[var(--color-line)] px-2.5 py-1 text-xs hover:bg-wash"
             >
               + Ajouter
             </button>
@@ -149,14 +149,14 @@ export function EmbedBuilder({
                   <input className="field-input" placeholder="Nom" value={f.name} onChange={(e) => {
                     const next = [...s.fields]; next[i] = { ...f, name: e.target.value }; set("fields", next);
                   }} />
-                  <button type="button" onClick={() => set("fields", s.fields.filter((_, j) => j !== i))} className="px-2 text-neutral-500 hover:text-red-400">
+                  <button type="button" onClick={() => set("fields", s.fields.filter((_, j) => j !== i))} className="px-2 text-muted hover:text-red-400">
                     <IconTrash width={18} height={18} />
                   </button>
                 </div>
                 <input className="field-input mt-2" placeholder="Valeur" value={f.value} onChange={(e) => {
                   const next = [...s.fields]; next[i] = { ...f, value: e.target.value }; set("fields", next);
                 }} />
-                <label className="mt-2 flex items-center gap-2 text-xs text-neutral-400">
+                <label className="mt-2 flex items-center gap-2 text-xs text-muted-2">
                   <input type="checkbox" checked={f.inline} onChange={(e) => {
                     const next = [...s.fields]; next[i] = { ...f, inline: e.target.checked }; set("fields", next);
                   }} /> En ligne
@@ -169,7 +169,7 @@ export function EmbedBuilder({
 
       {/* Aperçu + actions */}
       <div className="flex flex-col gap-4">
-        <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">Aperçu en direct</span>
+        <span className="eyebrow">Aperçu en direct</span>
         <EmbedPreview s={s} />
 
         <div className="card flex flex-col gap-3 p-5">
@@ -197,14 +197,14 @@ export function EmbedBuilder({
 
         {templates.length > 0 && (
           <div className="card p-5">
-            <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">Modèles enregistrés</span>
+            <span className="eyebrow">Modèles enregistrés</span>
             <ul className="mt-3 flex flex-col divide-y divide-[var(--color-line)]">
               {templates.map((t) => (
                 <li key={t.id} className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0">
-                  <button type="button" className="hover:text-brand" onClick={() => setS(fromEmbedData(t.data))}>
+                  <button type="button" className="hover:text-accent" onClick={() => setS(fromEmbedData(t.data))}>
                     {t.name}
                   </button>
-                  <button type="button" disabled={pending} onClick={() => run(() => deleteTemplateAction(guildId, t.id))} className="text-neutral-500 hover:text-red-400">
+                  <button type="button" disabled={pending} onClick={() => run(() => deleteTemplateAction(guildId, t.id))} className="text-muted hover:text-red-400">
                     <IconTrash width={16} height={16} />
                   </button>
                 </li>

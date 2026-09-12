@@ -53,7 +53,7 @@ export function ModerationForm({
         </Field>
         <div className="mt-4 flex flex-wrap gap-2">
           {["/kick", "/ban", "/unban", "/timeout", "/warn"].map((c) => (
-            <code key={c} className="rounded-lg bg-white/5 px-2 py-1 text-xs text-neutral-400">{c}</code>
+            <code key={c} className="rounded-lg bg-wash px-2 py-1 text-xs text-muted-2">{c}</code>
           ))}
         </div>
       </SectionCard>

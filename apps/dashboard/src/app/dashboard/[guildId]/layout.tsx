@@ -25,7 +25,7 @@ export default async function GuildLayout({
         iconUrl={iconUrl}
         footer={<SignOutButton />}
       />
-      <main className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-8 sm:py-12">
+      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
         {children}
       </main>
     </div>
