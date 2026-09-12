@@ -117,7 +117,8 @@ export async function managedBotInventory(guildId: string) {
   // Les tokens restent uniquement dans ce processus. Aucun objet Entry n'est renvoyé.
   const guild = client.guilds.cache.get(guildId);
   if (!guild) throw new Error("Serveur introuvable.");
-  const members = await guild.members.fetch({ time: 10_000 });
+  const members = await guild.members.fetch({ time: 10_000 }).catch(() => guild.members.cache);
+  if (members.size === 0) throw new Error("Inventaire Discord indisponible.");
   return members.filter((member) => member.user.bot).map((member) => {
     const entry = entries.get(member.id);
     return {

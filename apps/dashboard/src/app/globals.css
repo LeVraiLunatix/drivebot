@@ -328,20 +328,92 @@
   .bot-rail-item:hover .bot-tooltip { opacity: 1; transform: translateX(0); }
 
   .bot-picker {
-    @apply mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] border border-line bg-wash p-3;
+    @apply relative z-20 mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] border border-line bg-wash p-3;
   }
-  .bot-picker-control {
-    @apply flex items-center gap-2 rounded-xl border border-line bg-[var(--surface-2)] px-2.5 py-1.5;
+
+  .bot-menu-wrap {
+    @apply relative min-w-52;
   }
-  .bot-picker-control select {
-    @apply cursor-pointer bg-transparent pr-5 text-sm font-medium outline-none;
+
+  .bot-menu-trigger {
+    @apply flex w-full items-center gap-2.5 rounded-xl border px-2.5 py-2 text-sm font-semibold outline-none transition-all duration-200;
+    border-color: var(--line-2);
+    background: var(--surface-2);
     color: var(--fg);
+  }
+
+  .bot-menu-trigger:hover,
+  .bot-menu-trigger[aria-expanded="true"] {
+    border-color: color-mix(in srgb, var(--accent) 72%, transparent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .bot-menu-trigger:focus-visible {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  .bot-menu-avatar {
+    @apply size-8 shrink-0 rounded-lg border border-line bg-wash object-cover;
+  }
+
+  .bot-menu-chevron {
+    @apply size-4 shrink-0 text-muted transition-transform duration-200;
+  }
+  .bot-menu-chevron.is-open { transform: rotate(180deg); }
+
+  .bot-menu-panel {
+    @apply absolute right-0 top-[calc(100%+0.5rem)] z-50 w-full min-w-64 overflow-hidden rounded-2xl border border-line p-1.5 shadow-2xl;
+    background: color-mix(in srgb, var(--surface-2) 96%, black);
+    box-shadow: 0 24px 70px -24px rgb(0 0 0 / 0.8), 0 0 0 1px color-mix(in srgb, var(--accent) 7%, transparent);
+    animation: bot-menu-in 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: top right;
+  }
+
+  .bot-menu-heading {
+    @apply flex items-center justify-between px-2.5 py-2 font-mono text-[0.625rem] uppercase text-muted;
+    letter-spacing: 0.12em;
+  }
+
+  .bot-menu-heading span:last-child {
+    @apply grid size-5 place-items-center rounded-md bg-wash text-[0.6rem];
+  }
+
+  .bot-menu-list {
+    @apply flex max-h-72 flex-col gap-1 overflow-y-auto;
+  }
+
+  .bot-menu-option {
+    @apply relative flex w-full items-center gap-2.5 rounded-xl border border-transparent px-2.5 py-2 text-foreground outline-none transition-all duration-150;
+  }
+
+  .bot-menu-option:hover,
+  .bot-menu-option:focus-visible {
+    border-color: var(--line);
+    background: var(--wash-2);
+    transform: translateX(2px);
+  }
+
+  .bot-menu-option.is-active {
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent), color-mix(in srgb, var(--accent) 5%, transparent));
   }
 }
 
 @keyframes surface-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bot-menu-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 639px) {
+  .bot-menu-wrap { width: 100%; }
+  .bot-menu-panel { left: 0; right: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
