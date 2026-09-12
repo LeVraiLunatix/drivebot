@@ -12,6 +12,7 @@ import {
 import { prisma, type TicketConfig } from "@drivebot/database";
 import { client } from "../client.js";
 import { renderTemplate } from "./templates.js";
+import { isManagedBotOnline, sendAsManagedBot } from "./managedBots.js";
 
 /** Panneau (embed + bouton d'ouverture) affiché dans le salon public. */
 export function buildTicketPanel(cfg: TicketConfig) {
@@ -38,13 +39,14 @@ export async function publishTicketPanel(
 ): Promise<{ ok: boolean; error?: string }> {
   const cfg = await prisma.ticketConfig.findUnique({ where: { guildId } });
   if (!cfg?.panelChannel) return { ok: false, error: "Salon du panneau non configuré." };
-
-  const guild = client.guilds.cache.get(guildId);
-  const channel = guild?.channels.cache.get(cfg.panelChannel);
-  if (!(channel instanceof TextChannel)) return { ok: false, error: "Salon introuvable." };
+  if (!isManagedBotOnline(cfg.botId)) return { ok: false, error: "Active le bot choisi dans Mes bots avant de publier ce panneau interactif." };
 
   try {
-    await channel.send(buildTicketPanel(cfg));
+    const payload = buildTicketPanel(cfg);
+    await sendAsManagedBot(cfg.botId, guildId, cfg.panelChannel, {
+      embeds: payload.embeds.map((embed) => embed.toJSON()),
+      components: payload.components.map((row) => row.toJSON()),
+    });
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Échec de l'envoi." };
@@ -53,10 +55,9 @@ export async function publishTicketPanel(
 
 async function logTicket(cfg: TicketConfig, guildId: string, text: string) {
   if (!cfg.logChannel) return;
-  const ch = client.guilds.cache.get(guildId)?.channels.cache.get(cfg.logChannel);
-  if (ch instanceof TextChannel) {
-    await ch.send({ embeds: [new EmbedBuilder().setDescription(text).setColor(cfg.panelColor).setTimestamp()] }).catch(() => {});
-  }
+  await sendAsManagedBot(cfg.botId, guildId, cfg.logChannel, {
+    embeds: [new EmbedBuilder().setDescription(text).setColor(cfg.panelColor).setTimestamp().toJSON()],
+  }).catch(() => {});
 }
 
 function isStaff(member: GuildMember, cfg: TicketConfig): boolean {
@@ -110,7 +111,7 @@ export async function openTicket(interaction: ButtonInteraction): Promise<void> 
       permissionOverwrites: [
         { id: guild.roles.everyone.id, deny: [PermissionFlagsBits.ViewChannel] },
         { id: interaction.user.id, allow },
-        { id: client.user!.id, allow: [...allow, PermissionFlagsBits.ManageChannels] },
+        { id: interaction.client.user.id, allow: [...allow, PermissionFlagsBits.ManageChannels] },
         ...cfg.staffRoleIds.map((id) => ({ id, allow })),
       ],
     });
@@ -137,7 +138,7 @@ export async function openTicket(interaction: ButtonInteraction): Promise<void> 
   } catch (e) {
     const msg = e instanceof Error ? e.message : "erreur";
     await interaction.editReply({
-      content: `❌ Impossible de créer le ticket (${msg}). Vérifie que Drivebot a la permission **Gérer les salons**.`,
+      content: `❌ Impossible de créer le ticket (${msg}). Vérifie que le bot sélectionné a la permission **Gérer les salons**.`,
     });
   }
 }

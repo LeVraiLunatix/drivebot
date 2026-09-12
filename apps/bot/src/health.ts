@@ -118,7 +118,8 @@ export function startHealthServer(): void {
     if (method === "POST" && sendMatch) {
       readJson(req)
         .then(async (body) => {
-          const { channelId, embed } = (body ?? {}) as {
+          const { botId, channelId, embed } = (body ?? {}) as {
+            botId?: string;
             channelId?: string;
             embed?: import("@drivebot/types").EmbedData;
           };
@@ -127,7 +128,7 @@ export function startHealthServer(): void {
             res.end(JSON.stringify({ ok: false, error: "channelId et embed requis." }));
             return;
           }
-          const result = await sendEmbedToChannel(sendMatch[1], channelId, embed);
+          const result = await sendEmbedToChannel(sendMatch[1], botId, channelId, embed);
           res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
           res.end(JSON.stringify(result));
         })

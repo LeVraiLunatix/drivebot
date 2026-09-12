@@ -3,6 +3,7 @@ import { prisma } from "@drivebot/database";
 import { triggerReload } from "@/lib/bot";
 
 export interface ModerationFormData {
+  botId: string | null;
   logEnabled: boolean;
   logChannel: string | null;
 }
@@ -12,6 +13,7 @@ export async function loadModerationConfig(
 ): Promise<ModerationFormData> {
   const cfg = await prisma.moderationConfig.findUnique({ where: { guildId } });
   return {
+    botId: cfg?.botId ?? null,
     logEnabled: cfg?.logEnabled ?? false,
     logChannel: cfg?.logChannel ?? null,
   };

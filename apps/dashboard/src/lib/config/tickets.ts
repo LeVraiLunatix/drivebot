@@ -3,6 +3,7 @@ import { prisma } from "@drivebot/database";
 import { triggerReload } from "@/lib/bot";
 
 export interface TicketsFormData {
+  botId: string | null;
   enabled: boolean;
   panelChannel: string | null;
   categoryId: string | null;
@@ -19,6 +20,7 @@ export interface TicketsFormData {
 }
 
 const DEFAULTS: TicketsFormData = {
+  botId: null,
   enabled: false,
   panelChannel: null,
   categoryId: null,
@@ -39,6 +41,7 @@ export async function loadTicketsConfig(guildId: string): Promise<TicketsFormDat
   const c = await prisma.ticketConfig.findUnique({ where: { guildId } });
   if (!c) return DEFAULTS;
   return {
+    botId: c.botId,
     enabled: c.enabled,
     panelChannel: c.panelChannel,
     categoryId: c.categoryId,
@@ -62,6 +65,7 @@ export async function saveTicketsConfig(
   await prisma.guild.upsert({ where: { id: guildId }, create: { id: guildId }, update: {} });
 
   const data = {
+    botId: d.botId,
     enabled: d.enabled,
     panelChannel: d.panelChannel,
     categoryId: d.categoryId,

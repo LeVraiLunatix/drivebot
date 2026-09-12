@@ -4,7 +4,7 @@ import { assertGuildAccess } from "@/lib/guard";
 import { getGuildMeta, triggerReload } from "@/lib/bot";
 import { revalidatePath } from "next/cache";
 
-export async function saveSuggestionsAction(guildId: string, data: { enabled: boolean; channelId: string }) {
+export async function saveSuggestionsAction(guildId: string, data: { enabled: boolean; channelId: string; botId: string | null }) {
   await assertGuildAccess(guildId);
   if (typeof data?.enabled !== "boolean" || typeof data?.channelId !== "string") return { ok: false, message: "Configuration invalide." };
   if (data.enabled) {
@@ -13,7 +13,7 @@ export async function saveSuggestionsAction(guildId: string, data: { enabled: bo
   }
   try {
     await prisma.guild.upsert({ where: { id: guildId }, create: { id: guildId }, update: {} });
-    const values = { enabled: data.enabled, channelId: data.channelId || null };
+    const values = { enabled: data.enabled, channelId: data.channelId || null, botId: data.botId || null };
     await prisma.suggestionConfig.upsert({ where: { guildId }, create: { guildId, ...values }, update: values });
     await triggerReload(guildId);
     revalidatePath(`/dashboard/${guildId}/suggestions`);

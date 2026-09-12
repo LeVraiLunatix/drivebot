@@ -3,6 +3,7 @@ import { prisma } from "@drivebot/database";
 import { triggerReload } from "@/lib/bot";
 
 export interface StatusFormData {
+  botId: string | null;
   enabled: boolean;
   channelId: string | null;
 }
@@ -10,6 +11,7 @@ export interface StatusFormData {
 export async function loadStatusConfig(guildId: string): Promise<StatusFormData> {
   const cfg = await prisma.botStatusConfig.findUnique({ where: { guildId } });
   return {
+    botId: cfg?.botId ?? null,
     enabled: cfg?.enabled ?? false,
     channelId: cfg?.channelId ?? null,
   };

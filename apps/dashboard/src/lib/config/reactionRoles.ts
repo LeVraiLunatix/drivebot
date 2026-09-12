@@ -10,6 +10,7 @@ export interface ReactionRoleOptionData {
 
 export interface ReactionRolePanelFormData {
   id: string;
+  botId: string | null;
   channelId: string | null;
   messageId: string | null;
   title: string;
@@ -20,6 +21,7 @@ export interface ReactionRolePanelFormData {
 }
 
 const DEFAULTS: Omit<ReactionRolePanelFormData, "id" | "messageId"> = {
+  botId: null,
   channelId: null,
   title: "Rôles",
   description: "Clique sur un bouton pour obtenir ou retirer un rôle.",
@@ -36,6 +38,7 @@ export async function loadPanels(guildId: string): Promise<ReactionRolePanelForm
   });
   return panels.map((p) => ({
     id: p.id,
+    botId: p.botId,
     channelId: p.channelId,
     messageId: p.messageId,
     title: p.title,
@@ -64,6 +67,7 @@ export async function savePanel(
     prisma.reactionRolePanel.update({
       where: { id: panelId },
       data: {
+        botId: d.botId,
         channelId: d.channelId,
         title: d.title.slice(0, 256) || "Rôles",
         description: d.description.slice(0, 2000),

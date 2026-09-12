@@ -38,7 +38,7 @@ export function ManagedBotCard({ bot, guildId, channels }: { bot: GuildBot; guil
       <fieldset disabled={pending} className="mt-5 flex flex-col gap-6">
         <form className="grid gap-4 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); run({ action: "preferences", preferences }); }}>
           <label className="flex items-center gap-3 text-sm sm:col-span-2"><input type="checkbox" checked={preferences.enabled} disabled={bot.primary} onChange={(e) => setPreferences({ ...preferences, enabled: e.target.checked })} />Connecter le bot à Discord</label>
-          {bot.primary && <p className="text-xs text-muted sm:col-span-2">Drivebot reste connecté pour assurer le fonctionnement des modules et du dashboard.</p>}
+          {bot.primary && <p className="text-xs text-muted sm:col-span-2">Le bot principal reste connecté pour assurer les modules et le centre de contrôle.</p>}
           <Field label="Présence"><select className="field-input" value={preferences.status} onChange={(e) => setPreferences({ ...preferences, status: e.target.value as typeof preferences.status })}>
             <option value="online">En ligne</option><option value="idle">Absent</option><option value="dnd">Ne pas déranger</option><option value="invisible">Invisible</option>
           </select></Field>

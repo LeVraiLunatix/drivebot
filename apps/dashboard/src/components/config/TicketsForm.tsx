@@ -12,6 +12,7 @@ import { SectionCard, Field } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
 import { SaveBar } from "@/components/config/SettingsForm";
 import { IconMessage, IconSettings, IconSend } from "@/components/ui/Icons";
+import { BotPicker, useBotSelection } from "@/components/BotSelection";
 
 const hexToInt = (h: string) => parseInt(h.replace("#", ""), 16) || 0x5865f2;
 const intToHex = (n: number) => `#${n.toString(16).padStart(6, "0")}`;
@@ -29,6 +30,7 @@ export function TicketsForm({
   const [msg, setMsg] = useState<SaveState | null>(null);
   const [s, setS] = useState(initial);
   const [colorHex, setColorHex] = useState(intToHex(initial.panelColor));
+  const { selectedBotId } = useBotSelection();
 
   const set = <K extends keyof TicketsFormData>(k: K, v: TicketsFormData[K]) =>
     setS((p) => ({ ...p, [k]: v }));
@@ -63,15 +65,16 @@ export function TicketsForm({
     </div>
   );
 
-  const payload = (): TicketsFormData => ({ ...s, panelColor: hexToInt(colorHex) });
+  const payload = (): TicketsFormData => ({ ...s, botId: selectedBotId || null, panelColor: hexToInt(colorHex) });
 
   const save = () =>
     startTransition(async () => setMsg(await saveTicketsAction(guildId, payload())));
   const publish = () =>
-    startTransition(async () => setMsg(await publishPanelAction(guildId)));
+    startTransition(async () => setMsg(await publishPanelAction(guildId, payload())));
 
   return (
     <div className="flex flex-col gap-6">
+      <BotPicker assignedBotId={initial.botId} label="Bot qui publie et anime les tickets" />
       {!meta && (
         <p className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-4 text-sm text-amber-300">
           Bot injoignable : listes de salons/rôles vides.
@@ -85,7 +88,7 @@ export function TicketsForm({
         aside={<Toggle checked={s.enabled} onChange={(v) => set("enabled", v)} />}
       >
         <p className="text-sm text-muted">
-          Drivebot a besoin de la permission <b>Gérer les salons</b> pour créer les tickets.
+          Le bot choisi a besoin de la permission <b>Gérer les salons</b> pour créer les tickets.
         </p>
       </SectionCard>
 
@@ -122,7 +125,7 @@ export function TicketsForm({
           <button type="button" onClick={publish} disabled={pending} className="btn-ghost justify-center">
             <IconSend width={18} height={18} /> Publier le panneau dans le salon
           </button>
-          <p className="text-xs text-muted">Enregistre d'abord tes réglages, puis publie.</p>
+          <p className="text-xs text-muted">La publication enregistre aussi tes réglages actuels.</p>
         </div>
       </div>
 

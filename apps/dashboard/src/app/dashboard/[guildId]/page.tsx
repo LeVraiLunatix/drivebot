@@ -82,7 +82,7 @@ export default async function GuildHomePage({
     {
       href: `${base}/status`,
       icon: <IconActivity />,
-      title: "Statut du bot",
+      title: "État du système",
       desc: statusCfg.enabled ? "Rapport auto toutes les 30 min" : "Rapport automatique désactivé",
       enabled: statusCfg.enabled,
     },
@@ -90,7 +90,7 @@ export default async function GuildHomePage({
       href: `${base}/settings`,
       icon: <IconSettings />,
       title: "Paramètres",
-      desc: "Langue et préfixe du bot",
+      desc: "Langue et préférences générales",
       enabled: true,
     },
   ];
@@ -100,14 +100,14 @@ export default async function GuildHomePage({
       <PageHeader
         eyebrow="Serveur Discord"
         title={guild.name}
-        description="Vue d'ensemble de ta configuration Drivebot."
+        description="Tous tes bots et modules Discord au même endroit."
         action={
           <span className={`pill ${online ? "pill-ok" : "pill-danger"}`}>
             <span
               className="size-1.5 rounded-full"
               style={{ background: online ? "var(--ok-ink)" : "var(--danger)" }}
             />
-            {online ? "Bot en ligne" : "Bot hors ligne"}
+            {online ? "Centre connecté" : "Centre hors ligne"}
           </span>
         }
       />
@@ -121,8 +121,8 @@ export default async function GuildHomePage({
             color: "var(--warn-ink)",
           }}
         >
-          Drivebot ne répond pas. Les salons, rôles et membres ne seront pas à
-          jour tant qu&apos;il n&apos;est pas démarré.
+          Le centre de contrôle ne répond pas. Les salons, rôles et membres ne seront pas à
+          jour tant que le service principal n&apos;est pas démarré.
         </p>
       )}
 

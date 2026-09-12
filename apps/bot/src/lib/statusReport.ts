@@ -1,7 +1,8 @@
-import { EmbedBuilder, TextChannel } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { prisma } from "@drivebot/database";
 import type { BotStatus } from "@drivebot/types";
 import { client } from "../client.js";
+import { editAsManagedBot, sendAsManagedBot } from "./managedBots.js";
 
 function formatUptime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -43,7 +44,7 @@ async function buildStatusEmbed(): Promise<EmbedBuilder> {
 
   return new EmbedBuilder()
     .setColor(0x2ecc71)
-    .setTitle("🟢 État de Drivebot")
+    .setTitle("🟢 État du centre de contrôle")
     .addFields(
       { name: "Statut", value: "En ligne", inline: true },
       { name: "Ping", value: `${status.pingMs} ms`, inline: true },
@@ -64,22 +65,18 @@ async function postStatusForGuild(
   channelId: string,
   messageId: string | null,
   embed: EmbedBuilder,
+  botId: string | null,
 ): Promise<void> {
   const guild = client.guilds.cache.get(guildId);
   if (!guild) return;
 
-  const channel = guild.channels.cache.get(channelId);
-  if (!(channel instanceof TextChannel)) return;
-
   if (messageId) {
-    const existing = await channel.messages.fetch(messageId).catch(() => null);
+    const existing = await editAsManagedBot(botId, channelId, messageId, { embeds: [embed.toJSON()] }).catch(() => null);
     if (existing) {
-      await existing.edit({ embeds: [embed] }).catch(() => {});
       return;
     }
   }
-
-  const sent = await channel.send({ embeds: [embed] }).catch(() => null);
+  const sent = await sendAsManagedBot(botId, guildId, channelId, { embeds: [embed.toJSON()] }).catch(() => null);
   if (sent) {
     await prisma.botStatusConfig
       .update({ where: { guildId }, data: { messageId: sent.id } })
@@ -96,7 +93,7 @@ async function postStatusToAllGuilds(): Promise<void> {
 
   const embed = await buildStatusEmbed();
   for (const cfg of configs) {
-    if (cfg.channelId) await postStatusForGuild(cfg.guildId, cfg.channelId, cfg.messageId, embed);
+    if (cfg.channelId) await postStatusForGuild(cfg.guildId, cfg.channelId, cfg.messageId, embed, cfg.botId);
   }
 }
 

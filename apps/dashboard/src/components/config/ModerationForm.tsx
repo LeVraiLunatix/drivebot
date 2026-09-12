@@ -9,6 +9,7 @@ import { SectionCard, Field } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
 import { SaveBar } from "@/components/config/SettingsForm";
 import { IconShield } from "@/components/ui/Icons";
+import { BotPicker, useBotSelection } from "@/components/BotSelection";
 
 export function ModerationForm({
   guildId,
@@ -23,6 +24,7 @@ export function ModerationForm({
   const [msg, setMsg] = useState<SaveState | null>(null);
   const [logEnabled, setLogEnabled] = useState(initial.logEnabled);
   const [logChannel, setLogChannel] = useState(initial.logChannel ?? "");
+  const { selectedBotId } = useBotSelection();
 
   const channels = meta?.channels ?? [];
   const channelOptions =
@@ -32,11 +34,12 @@ export function ModerationForm({
 
   const save = () =>
     startTransition(async () => {
-      setMsg(await saveModerationAction(guildId, { logEnabled, logChannel: logChannel || null }));
+      setMsg(await saveModerationAction(guildId, { botId: selectedBotId || null, logEnabled, logChannel: logChannel || null }));
     });
 
   return (
     <div className="flex flex-col gap-6">
+      <BotPicker assignedBotId={initial.botId} label="Bot qui publie les journaux de modération" />
       <SectionCard
         title="Journalisation"
         description="Enregistre les sanctions et les poste dans un salon."

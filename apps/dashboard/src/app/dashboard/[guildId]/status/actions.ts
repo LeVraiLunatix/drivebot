@@ -12,6 +12,7 @@ export async function saveStatusAction(
   await assertGuildAccess(guildId);
 
   await saveStatusConfig(guildId, {
+    botId: data.botId || null,
     enabled: data.enabled,
     channelId: data.channelId || null,
   });

@@ -1,11 +1,12 @@
-import { TextChannel } from "discord.js";
 import type { EmbedData } from "@drivebot/types";
 import { client } from "../client.js";
 import { buildEmbed } from "./embed.js";
+import { sendAsManagedBot } from "./managedBots.js";
 
 /** Envoie un embed dans un salon donné. Utilisé par l'embed builder du dashboard. */
 export async function sendEmbedToChannel(
   guildId: string,
+  botId: string | undefined,
   channelId: string,
   data: EmbedData,
 ): Promise<{ ok: boolean; error?: string }> {
@@ -13,12 +14,12 @@ export async function sendEmbedToChannel(
   if (!guild) return { ok: false, error: "Serveur introuvable." };
 
   const channel = guild.channels.cache.get(channelId);
-  if (!(channel instanceof TextChannel)) {
+  if (!channel?.isTextBased()) {
     return { ok: false, error: "Salon textuel introuvable." };
   }
 
   try {
-    await channel.send({ embeds: [buildEmbed(data)] });
+    await sendAsManagedBot(botId, guildId, channelId, { embeds: [buildEmbed(data).toJSON()] });
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Échec de l'envoi." };

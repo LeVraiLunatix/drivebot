@@ -1,4 +1,5 @@
-import { Client, Events, GatewayIntentBits, REST, Routes, type APIUser, type APIGuildMember, type RESTGetAPIChannelResult, type ActivityType } from "discord.js";
+import { Client, Events, GatewayIntentBits, REST, Routes, type APIUser, type APIMessage, type APIGuildMember, type RESTGetAPIChannelResult, type ActivityType } from "discord.js";
+import type { RESTPostAPIChannelMessageJSONBody } from "discord-api-types/v10";
 import { readFile, writeFile, rename, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -41,7 +42,7 @@ async function connect(entry: Entry) {
   }
 }
 
-export async function startManagedBots() {
+export async function startManagedBots(wireClient?: (managedClient: Client) => void) {
   try {
     const raw = JSON.parse(await readFile(settingsPath, "utf8"));
     for (const [id, value] of Object.entries(raw)) { const p = validatePreferences(value); if (p) settings[id] = p; }
@@ -60,6 +61,7 @@ export async function startManagedBots() {
     const rest = new REST({ version: "10", timeout: 12_000, retries: 0 }).setToken(credential.token);
     const entry: Entry = { ...credential, client: botClient, rest, primary, preferences: { ...(settings[credential.id] || defaultPreferences), ...(primary ? { enabled: true } : {}) }, error: null };
     entries.set(entry.id, entry);
+    if (!primary) wireClient?.(botClient);
     botClient.on(Events.ClientReady, () => { entry.error = null; applyPresence(entry); });
     botClient.on(Events.Error, () => { entry.error = "Connexion Discord interrompue."; });
     if (entry.preferences.enabled) await connect(entry);
@@ -68,6 +70,47 @@ export async function startManagedBots() {
 
 export async function stopManagedBots() {
   await Promise.all([...entries.values()].map((e) => e.client.destroy()));
+}
+
+function managedEntry(botId?: string | null): Entry | null {
+  return entries.get(botId || config.clientId) ?? entries.get(config.clientId) ?? null;
+}
+
+export function isManagedBotOnline(botId?: string | null): boolean {
+  return managedEntry(botId)?.client.isReady() ?? false;
+}
+
+/** Envoie avec l'identité choisie sans exposer son token aux autres modules. */
+export async function sendAsManagedBot(
+  botId: string | null | undefined,
+  guildId: string,
+  channelId: string,
+  body: RESTPostAPIChannelMessageJSONBody,
+): Promise<APIMessage> {
+  const entry = managedEntry(botId);
+  if (!entry) throw new Error("Bot émetteur indisponible.");
+  const channel = await entry.rest.get(Routes.channel(channelId)) as RESTGetAPIChannelResult;
+  if (!("guild_id" in channel) || channel.guild_id !== guildId || ![0, 5].includes(channel.type)) {
+    throw new Error("Salon textuel invalide.");
+  }
+  return entry.rest.post(Routes.channelMessages(channelId), { body }) as Promise<APIMessage>;
+}
+
+export async function editAsManagedBot(
+  botId: string | null | undefined,
+  channelId: string,
+  messageId: string,
+  body: RESTPostAPIChannelMessageJSONBody,
+): Promise<APIMessage> {
+  const entry = managedEntry(botId);
+  if (!entry) throw new Error("Bot émetteur indisponible.");
+  return entry.rest.patch(Routes.channelMessage(channelId, messageId), { body }) as Promise<APIMessage>;
+}
+
+export async function reactAsManagedBot(botId: string | null | undefined, channelId: string, messageId: string, emoji: string) {
+  const entry = managedEntry(botId);
+  if (!entry) throw new Error("Bot émetteur indisponible.");
+  await entry.rest.put(Routes.channelMessageOwnReaction(channelId, messageId, encodeURIComponent(emoji)));
 }
 
 export async function managedBotInventory(guildId: string) {

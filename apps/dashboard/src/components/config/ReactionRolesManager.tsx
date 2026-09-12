@@ -16,6 +16,7 @@ import type {
 import { SectionCard, Field } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
 import { IconTag, IconSend, IconTrash, IconPlus, IconCheck } from "@/components/ui/Icons";
+import { BotPicker, useBotSelection } from "@/components/BotSelection";
 
 const hexToInt = (h: string) => parseInt(h.replace("#", ""), 16) || 0x5865f2;
 const intToHex = (n: number) => `#${n.toString(16).padStart(6, "0")}`;
@@ -42,6 +43,7 @@ export function ReactionRolesManager({
 
   return (
     <div className="flex flex-col gap-6">
+      <BotPicker assignedBotId={panels[0]?.botId} label="Bot qui publie et anime les panneaux de rôles" />
       {!meta && (
         <p className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-4 text-sm text-amber-300">
           Bot injoignable : listes de salons/rôles vides.
@@ -85,6 +87,7 @@ function PanelCard({
   const [s, setS] = useState(initial);
   const [colorHex, setColorHex] = useState(intToHex(initial.color));
   const [published, setPublished] = useState(!!initial.messageId);
+  const { selectedBotId } = useBotSelection();
 
   const set = <K extends keyof ReactionRolePanelFormData>(k: K, v: ReactionRolePanelFormData[K]) =>
     setS((p) => ({ ...p, [k]: v }));
@@ -105,13 +108,13 @@ function PanelCard({
   const removeRole = (i: number) =>
     setS((p) => ({ ...p, roles: p.roles.filter((_, idx) => idx !== i) }));
 
-  const payload = (): ReactionRolePanelFormData => ({ ...s, color: hexToInt(colorHex) });
+  const payload = (): ReactionRolePanelFormData => ({ ...s, botId: selectedBotId || null, color: hexToInt(colorHex) });
 
   const save = () =>
     startTransition(async () => setMsg(await savePanelAction(guildId, s.id, payload())));
   const publish = () =>
     startTransition(async () => {
-      const res = await publishPanelAction(guildId, s.id);
+      const res = await publishPanelAction(guildId, s.id, payload());
       setMsg(res);
       if (res.ok) setPublished(true);
     });

@@ -84,6 +84,7 @@ export async function getBotGuildIds(): Promise<Set<string>> {
 /** Demande au bot d'envoyer un embed dans un salon. */
 export async function sendEmbedViaBot(
   guildId: string,
+  botId: string,
   channelId: string,
   embed: import("@drivebot/types").EmbedData,
 ): Promise<{ ok: boolean; error?: string }> {
@@ -94,7 +95,7 @@ export async function sendEmbedViaBot(
         "Content-Type": "application/json",
         "x-internal-secret": SECRET,
       },
-      body: JSON.stringify({ channelId, embed }),
+      body: JSON.stringify({ botId, channelId, embed }),
     });
     return (await res.json()) as { ok: boolean; error?: string };
   } catch {

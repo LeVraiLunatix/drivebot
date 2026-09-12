@@ -10,6 +10,7 @@ import { SectionCard, Field } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
 import { SaveBar } from "@/components/config/SettingsForm";
 import { IconActivity } from "@/components/ui/Icons";
+import { BotPicker, useBotSelection } from "@/components/BotSelection";
 
 function formatUptime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -41,6 +42,7 @@ export function StatusForm({
   const [msg, setMsg] = useState<SaveState | null>(null);
   const [enabled, setEnabled] = useState(initial.enabled);
   const [channelId, setChannelId] = useState(initial.channelId ?? "");
+  const { selectedBotId, selectedBot } = useBotSelection();
 
   const router = useRouter();
   useEffect(() => {
@@ -55,14 +57,15 @@ export function StatusForm({
 
   const save = () =>
     startTransition(async () => {
-      setMsg(await saveStatusAction(guildId, { enabled, channelId: channelId || null }));
+      setMsg(await saveStatusAction(guildId, { botId: selectedBotId || null, enabled, channelId: channelId || null }));
     });
 
   return (
     <div className="flex flex-col gap-6">
+      <BotPicker assignedBotId={initial.botId} label="Bot qui publie le rapport automatique" />
       <SectionCard
         title="État en direct"
-        description="Ce que voit Drivebot en ce moment."
+        description={`État du centre de contrôle${selectedBot ? ` · ${selectedBot.name} sélectionné` : ""}.`}
         icon={<IconActivity />}
         aside={
           <span
@@ -86,7 +89,7 @@ export function StatusForm({
             <LiveStat value={new Date(status.startedAt).toLocaleString("fr-FR")} label="Dernier redémarrage" />
           </div>
         ) : (
-          <p className="text-sm text-muted">Drivebot ne répond pas actuellement.</p>
+          <p className="text-sm text-muted">Le centre de contrôle ne répond pas actuellement.</p>
         )}
       </SectionCard>
 

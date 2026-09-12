@@ -13,13 +13,14 @@ export interface ActionResult {
 
 export async function sendEmbedAction(
   guildId: string,
+  botId: string,
   channelId: string,
   embed: EmbedData,
 ): Promise<ActionResult> {
   await assertGuildAccess(guildId);
   if (!channelId) return { ok: false, message: "Choisis un salon." };
 
-  const res = await sendEmbedViaBot(guildId, channelId, embed);
+  const res = await sendEmbedViaBot(guildId, botId, channelId, embed);
   return res.ok
     ? { ok: true, message: "Embed envoyé ✓" }
     : { ok: false, message: res.error ?? "Échec de l'envoi." };

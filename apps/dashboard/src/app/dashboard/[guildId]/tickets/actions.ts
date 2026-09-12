@@ -16,8 +16,12 @@ export async function saveTicketsAction(
 }
 
 /** Publie le panneau de tickets dans le salon configuré (via le bot). */
-export async function publishPanelAction(guildId: string): Promise<SaveState> {
+export async function publishPanelAction(
+  guildId: string,
+  data: TicketsFormData,
+): Promise<SaveState> {
   await assertGuildAccess(guildId);
+  await saveTicketsConfig(guildId, data);
   const res = await publishTicketPanelViaBot(guildId);
   return res.ok
     ? { ok: true, message: "Panneau publié ✓" }

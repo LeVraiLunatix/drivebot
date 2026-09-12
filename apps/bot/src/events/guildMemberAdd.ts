@@ -1,7 +1,8 @@
-import { type GuildMember, TextChannel } from "discord.js";
+import { type GuildMember } from "discord.js";
 import { getGuildConfig } from "../lib/guildConfig.js";
 import { buildJoinEmbed } from "../lib/welcomeEmbed.js";
 import { checkRaid } from "../lib/protection.js";
+import { sendAsManagedBot } from "../lib/managedBots.js";
 
 /** À l'arrivée : anti-raid, rôle non-vérifié (si vérif active), autorôles, embed de bienvenue. */
 export async function onGuildMemberAdd(member: GuildMember): Promise<void> {
@@ -30,9 +31,8 @@ export async function onGuildMemberAdd(member: GuildMember): Promise<void> {
   const w = cfg.welcome;
   if (!w?.joinEnabled || !w.joinChannel) return;
   const channel = member.guild.channels.cache.get(w.joinChannel);
-  if (!(channel instanceof TextChannel)) return;
+  if (!channel?.isTextBased()) return;
 
-  await channel
-    .send({ content: `<@${member.id}>`, embeds: [buildJoinEmbed(member, w.joinMessage)] })
+  await sendAsManagedBot(w.botId, member.guild.id, w.joinChannel, { content: `<@${member.id}>`, embeds: [buildJoinEmbed(member, w.joinMessage).toJSON()] })
     .catch(() => {});
 }

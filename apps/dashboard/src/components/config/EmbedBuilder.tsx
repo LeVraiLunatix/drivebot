@@ -10,6 +10,7 @@ import {
 } from "@/app/dashboard/[guildId]/embeds/actions";
 import { Field } from "@/components/ui/Card";
 import { IconSend, IconTrash } from "@/components/ui/Icons";
+import { BotPicker, useBotSelection } from "@/components/BotSelection";
 
 interface EmbedFieldRow {
   name: string;
@@ -83,6 +84,7 @@ export function EmbedBuilder({
   const [templateName, setTemplateName] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
+  const { selectedBotId } = useBotSelection();
 
   const set = <K extends keyof BuilderState>(k: K, v: BuilderState[K]) =>
     setS((p) => ({ ...p, [k]: v }));
@@ -98,6 +100,7 @@ export function EmbedBuilder({
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
+      <div className="lg:col-span-2"><BotPicker label="Bot qui publie l’embed" /></div>
       {/* Éditeur */}
       <div className="card flex flex-col gap-4 p-5">
         <Field label="Titre">
@@ -181,7 +184,7 @@ export function EmbedBuilder({
               ))}
             </select>
           </Field>
-          <button type="button" disabled={pending} onClick={() => run(() => sendEmbedAction(guildId, channelId, embed))} className="btn-primary">
+          <button type="button" disabled={pending} onClick={() => run(() => sendEmbedAction(guildId, selectedBotId, channelId, embed))} className="btn-primary">
             <IconSend width={18} height={18} /> {pending ? "…" : "Envoyer l'embed"}
           </button>
           <div className="flex gap-2">

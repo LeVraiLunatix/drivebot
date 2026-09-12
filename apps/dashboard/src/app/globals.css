@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
-  Dashboard Drivebot — aligné sur la D.A. de cordsuite.app.
+  Cordsuite Bot Manager — interface centralisée pour tous les bots du serveur.
 
   Toutes les couleurs passent par des tokens, jamais par un `white/10` codé en
   dur dans le JSX : le mode clair doit pouvoir inverser l'ensemble d'un bloc,
@@ -161,6 +161,7 @@
   .card {
     @apply rounded-[var(--radius-lg)] border bg-surface backdrop-blur-sm;
     border-color: var(--line);
+    animation: surface-in 420ms var(--ease-out-expo) both;
   }
 
   .card-hover {
@@ -216,10 +217,12 @@
 
   .btn-primary:hover:not(:disabled) {
     filter: brightness(1.1);
+    transform: translateY(-1px);
   }
 
   .btn-primary:active:not(:disabled) {
     filter: brightness(0.95);
+    transform: translateY(0) scale(0.98);
   }
 
   .btn-ghost {
@@ -258,6 +261,91 @@
     background: color-mix(in oklch, var(--danger) 12%, transparent);
     color: var(--danger);
   }
+
+  .sidebar-link {
+    @apply flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200;
+    color: var(--muted);
+  }
+
+  .sidebar-link:hover {
+    color: var(--fg);
+    background: var(--wash);
+    transform: translateX(2px);
+  }
+
+  .sidebar-link.is-active {
+    color: var(--fg);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 15%, transparent), var(--wash));
+    box-shadow: inset 2px 0 var(--accent);
+  }
+
+  .sidebar-link-icon {
+    @apply grid size-5 place-items-center transition-transform duration-200;
+    color: var(--muted);
+  }
+
+  .sidebar-link:hover .sidebar-link-icon,
+  .sidebar-link.is-active .sidebar-link-icon {
+    color: var(--accent);
+    transform: scale(1.08);
+  }
+
+  .bot-rail-item {
+    @apply relative flex size-12 shrink-0 items-center justify-center rounded-2xl transition-all duration-200;
+  }
+
+  .bot-rail-avatar {
+    @apply size-[42px] rounded-2xl border border-line bg-wash object-cover transition-all duration-300;
+  }
+
+  .bot-rail-item:hover .bot-rail-avatar,
+  .bot-rail-item.is-active .bot-rail-avatar {
+    border-radius: 0.75rem;
+    border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+    transform: translateY(-1px) scale(1.04);
+  }
+
+  .bot-rail-item.is-active .bot-rail-avatar {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent), 0 10px 24px -12px var(--accent);
+  }
+
+  .bot-rail-marker {
+    @apply absolute -left-2 h-0 w-1 rounded-r-full bg-accent transition-all duration-300;
+  }
+
+  .bot-rail-item:hover .bot-rail-marker { height: 1.1rem; }
+  .bot-rail-item.is-active .bot-rail-marker { height: 2rem; }
+
+  .bot-presence {
+    @apply absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-[var(--bg)] bg-zinc-500;
+  }
+  .bot-presence.is-online { @apply bg-emerald-400; }
+
+  .bot-tooltip {
+    @apply pointer-events-none absolute left-[calc(100%+0.65rem)] z-50 whitespace-nowrap rounded-lg border border-line bg-[var(--surface-2)] px-2.5 py-1.5 text-xs font-medium opacity-0 shadow-xl transition-all duration-150;
+    transform: translateX(-4px);
+  }
+  .bot-rail-item:hover .bot-tooltip { opacity: 1; transform: translateX(0); }
+
+  .bot-picker {
+    @apply mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] border border-line bg-wash p-3;
+  }
+  .bot-picker-control {
+    @apply flex items-center gap-2 rounded-xl border border-line bg-[var(--surface-2)] px-2.5 py-1.5;
+  }
+  .bot-picker-control select {
+    @apply cursor-pointer bg-transparent pr-5 text-sm font-medium outline-none;
+    color: var(--fg);
+  }
+}
+
+@keyframes surface-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 /* Nav mobile à défilement horizontal : la barre réservée par `scrollbar-width:

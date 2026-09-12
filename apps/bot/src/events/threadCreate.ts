@@ -1,5 +1,6 @@
 import { type AnyThreadChannel, ChannelType } from "discord.js";
 import { getGuildConfig } from "../lib/guildConfig.js";
+import { reactAsManagedBot } from "../lib/managedBots.js";
 
 /** À la création d'un post dans le forum de suggestions : ajoute les
  *  réactions de vote ✅ / ❌ sur le message de départ. */
@@ -17,8 +18,8 @@ export async function onThreadCreate(thread: AnyThreadChannel): Promise<void> {
     const starter = await thread.fetchStarterMessage().catch(() => null);
     const target = starter ?? (await thread.messages.fetch({ limit: 1 })).first();
     if (!target) return;
-    await target.react("✅");
-    await target.react("❌");
+    await reactAsManagedBot(s.botId, thread.id, target.id, "✅");
+    await reactAsManagedBot(s.botId, thread.id, target.id, "❌");
   } catch (e) {
     console.warn("[suggestion] réactions échouées:", (e as Error).message);
   }

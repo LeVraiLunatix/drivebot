@@ -13,6 +13,7 @@ export async function saveModerationAction(
   await assertGuildAccess(guildId);
 
   await saveModerationConfig(guildId, {
+    botId: data.botId || null,
     logEnabled: data.logEnabled,
     logChannel: data.logChannel || null,
   });

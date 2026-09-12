@@ -24,7 +24,9 @@ client.on(Events.MessageCreate, onMessageCreate);
 // Serveur HTTP (santé UptimeRobot + reload de config depuis le dashboard).
 startHealthServer();
 
-startManagedBots().catch(() => {
+startManagedBots((managedClient) => {
+  managedClient.on(Events.InteractionCreate, onInteractionCreate);
+}).catch(() => {
   console.error("[bot] Configuration multi-bots invalide. Vérifier MANAGED_BOTS_JSON et data/bot-controls.json.");
   process.exit(1);
 });

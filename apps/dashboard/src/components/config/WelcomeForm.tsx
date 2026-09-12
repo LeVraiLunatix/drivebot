@@ -8,6 +8,7 @@ import { SectionCard, Field } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
 import { SaveBar } from "@/components/config/SettingsForm";
 import { IconWave, IconLogout, IconTag } from "@/components/ui/Icons";
+import { BotPicker, useBotSelection } from "@/components/BotSelection";
 
 export function WelcomeForm({
   guildId,
@@ -28,6 +29,7 @@ export function WelcomeForm({
   const [leaveChannel, setLeaveChannel] = useState(initial.leaveChannel ?? "");
   const [leaveMessage, setLeaveMessage] = useState(initial.leaveMessage);
   const [autoRoleIds, setAutoRoleIds] = useState<string[]>(initial.autoRoleIds);
+  const { selectedBotId } = useBotSelection();
 
   const channels = meta?.channels ?? [];
   const roles = meta?.roles ?? [];
@@ -44,6 +46,7 @@ export function WelcomeForm({
     startTransition(async () => {
       setMsg(
         await saveWelcome(guildId, {
+          botId: selectedBotId || null,
           joinEnabled,
           joinChannel: joinChannel || null,
           joinMessage,
@@ -57,6 +60,7 @@ export function WelcomeForm({
 
   return (
     <div className="flex flex-col gap-6">
+      <BotPicker assignedBotId={initial.botId} label="Bot qui envoie les messages d’arrivée et de départ" />
       {!meta && (
         <p className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-4 text-sm text-amber-300">
           Bot injoignable : les listes de salons et rôles sont vides.

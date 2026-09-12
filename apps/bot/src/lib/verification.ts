@@ -13,6 +13,7 @@ import {
 } from "discord.js";
 import { prisma, type VerificationConfig } from "@drivebot/database";
 import { client } from "../client.js";
+import { isManagedBotOnline, sendAsManagedBot } from "./managedBots.js";
 
 // Caractères non ambigus (pas de O/0, I/1).
 const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -38,10 +39,13 @@ export async function publishVerificationPanel(
 ): Promise<{ ok: boolean; error?: string }> {
   const cfg = await prisma.verificationConfig.findUnique({ where: { guildId } });
   if (!cfg?.channelId) return { ok: false, error: "Salon de vérification non configuré." };
-  const channel = client.guilds.cache.get(guildId)?.channels.cache.get(cfg.channelId);
-  if (!(channel instanceof TextChannel)) return { ok: false, error: "Salon introuvable." };
+  if (!isManagedBotOnline(cfg.botId)) return { ok: false, error: "Active le bot choisi dans Mes bots avant de publier ce panneau interactif." };
   try {
-    await channel.send(buildVerificationPanel(cfg));
+    const payload = buildVerificationPanel(cfg);
+    await sendAsManagedBot(cfg.botId, guildId, cfg.channelId, {
+      embeds: payload.embeds.map((embed) => embed.toJSON()),
+      components: payload.components.map((row) => row.toJSON()),
+    });
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Échec de l'envoi." };

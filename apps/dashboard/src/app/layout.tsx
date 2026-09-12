@@ -24,8 +24,8 @@ const jetbrainsMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Drivebot — Dashboard",
-  description: "Gère Drivebot sur ton serveur Discord Drivecord.",
+  title: "Cordsuite — Bot Manager",
+  description: "Contrôle tous les bots de ton serveur Discord depuis un espace centralisé.",
 };
 
 /**

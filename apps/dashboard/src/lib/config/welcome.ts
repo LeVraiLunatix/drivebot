@@ -3,6 +3,7 @@ import { prisma } from "@drivebot/database";
 import { triggerReload } from "@/lib/bot";
 
 export interface WelcomeFormData {
+  botId: string | null;
   joinEnabled: boolean;
   joinChannel: string | null;
   joinMessage: string;
@@ -22,6 +23,7 @@ export async function loadWelcomeConfig(
   ]);
 
   return {
+    botId: welcome?.botId ?? null,
     joinEnabled: welcome?.joinEnabled ?? false,
     joinChannel: welcome?.joinChannel ?? null,
     joinMessage: welcome?.joinMessage ?? "Bienvenue {user} sur {server} ! 🎉",
@@ -64,6 +66,7 @@ export async function saveWelcomeConfig(
 
 function toColumns(data: WelcomeFormData) {
   return {
+    botId: data.botId,
     joinEnabled: data.joinEnabled,
     joinChannel: data.joinChannel,
     joinMessage: data.joinMessage,

@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { prisma, type ReactionRolePanel, type ReactionRoleOption } from "@drivebot/database";
 import { client } from "../client.js";
+import { editAsManagedBot, isManagedBotOnline, sendAsManagedBot } from "./managedBots.js";
 
 type PanelWithRoles = ReactionRolePanel & { roles: ReactionRoleOption[] };
 
@@ -49,22 +50,19 @@ export async function publishReactionRolePanel(
   if (!panel || panel.guildId !== guildId) return { ok: false, error: "Panneau introuvable." };
   if (!panel.channelId) return { ok: false, error: "Salon non configuré." };
   if (panel.roles.length === 0) return { ok: false, error: "Ajoute au moins un rôle." };
-
-  const guild = client.guilds.cache.get(guildId);
-  const channel = guild?.channels.cache.get(panel.channelId);
-  if (!(channel instanceof TextChannel)) return { ok: false, error: "Salon introuvable." };
+  if (!isManagedBotOnline(panel.botId)) return { ok: false, error: "Active le bot choisi dans Mes bots avant de publier ce panneau interactif." };
 
   const payload = buildReactionRolePanel(panel);
+  const jsonPayload = { embeds: payload.embeds.map((embed) => embed.toJSON()), components: payload.components.map((row) => row.toJSON()) };
 
   try {
     if (panel.messageId) {
-      const existing = await channel.messages.fetch(panel.messageId).catch(() => null);
+      const existing = await editAsManagedBot(panel.botId, panel.channelId, panel.messageId, jsonPayload).catch(() => null);
       if (existing) {
-        await existing.edit(payload);
         return { ok: true };
       }
     }
-    const sent = await channel.send(payload);
+    const sent = await sendAsManagedBot(panel.botId, guildId, panel.channelId, jsonPayload);
     await prisma.reactionRolePanel.update({ where: { id: panelId }, data: { messageId: sent.id } });
     return { ok: true };
   } catch (e) {

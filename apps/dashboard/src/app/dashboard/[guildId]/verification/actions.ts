@@ -15,8 +15,12 @@ export async function saveVerificationAction(
   return { ok: true, message: "Enregistré ✓" };
 }
 
-export async function publishVerifPanelAction(guildId: string): Promise<SaveState> {
+export async function publishVerifPanelAction(
+  guildId: string,
+  data: VerificationFormData,
+): Promise<SaveState> {
   await assertGuildAccess(guildId);
+  await saveVerificationConfig(guildId, data);
   const res = await publishVerifPanelViaBot(guildId);
   return res.ok
     ? { ok: true, message: "Panneau publié ✓" }

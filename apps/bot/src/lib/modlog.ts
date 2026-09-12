@@ -1,6 +1,7 @@
-import { EmbedBuilder, type Guild, TextChannel } from "discord.js";
+import { EmbedBuilder, type Guild } from "discord.js";
 import { prisma, type ModerationAction } from "@drivebot/database";
 import { getGuildConfig } from "./guildConfig.js";
+import { sendAsManagedBot } from "./managedBots.js";
 
 const COLORS: Record<ModerationAction, number> = {
   WARN: 0xf1c40f,
@@ -38,7 +39,7 @@ export async function recordCase(params: {
   if (!mod?.logEnabled || !mod.logChannel) return;
 
   const channel = guild.channels.cache.get(mod.logChannel);
-  if (!(channel instanceof TextChannel)) return;
+  if (!channel?.isTextBased()) return;
 
   const embed = new EmbedBuilder()
     .setColor(COLORS[type])
@@ -50,5 +51,5 @@ export async function recordCase(params: {
     )
     .setTimestamp();
 
-  await channel.send({ embeds: [embed] }).catch(() => {});
+  await sendAsManagedBot(mod.botId, guild.id, mod.logChannel, { embeds: [embed.toJSON()] }).catch(() => {});
 }

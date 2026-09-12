@@ -32,8 +32,13 @@ export async function deletePanelAction(guildId: string, panelId: string): Promi
 }
 
 /** Publie ou republie (édite) le panneau dans le salon configuré. */
-export async function publishPanelAction(guildId: string, panelId: string): Promise<SaveState> {
+export async function publishPanelAction(
+  guildId: string,
+  panelId: string,
+  data: ReactionRolePanelFormData,
+): Promise<SaveState> {
   await assertGuildAccess(guildId);
+  await savePanel(guildId, panelId, data);
   const res = await publishReactionRolePanelViaBot(guildId, panelId);
   return res.ok
     ? { ok: true, message: "Panneau publié ✓" }

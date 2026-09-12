@@ -51,6 +51,7 @@ model WelcomeConfig {
   joinMessage  String  @default("Bienvenue {user} sur {server} ! 🎉")
   joinUseEmbed Boolean @default(false)
   joinEmbed    Json?
+  botId        String?
 
   leaveEnabled Boolean @default(false)
   leaveChannel String?
@@ -76,6 +77,7 @@ model ModerationConfig {
   guild      Guild   @relation(fields: [guildId], references: [id], onDelete: Cascade)
   logEnabled Boolean @default(false)
   logChannel String?
+  botId      String?
   updatedAt  DateTime @updatedAt
 }
 
@@ -119,6 +121,7 @@ model TicketConfig {
   guildId          String   @id
   guild            Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
   enabled          Boolean  @default(false)
+  botId            String?
   panelChannel     String? // salon où est posté le panneau
   categoryId       String? // catégorie sous laquelle sont créés les tickets
   logChannel       String?
@@ -161,6 +164,7 @@ model VerificationConfig {
   guildId          String   @id
   guild            Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
   enabled          Boolean  @default(false)
+  botId            String?
   channelId        String? // salon où est posté le panneau
   verifiedRoleId   String? // rôle donné après vérification
   unverifiedRoleId String? // rôle attribué à l'arrivée (retiré après vérif)
@@ -175,6 +179,7 @@ model SuggestionConfig {
   guildId   String   @id
   guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
   enabled   Boolean  @default(false)
+  botId     String?
   channelId String?
   updatedAt DateTime @updatedAt
 }
@@ -184,6 +189,7 @@ model BotStatusConfig {
   guildId   String   @id
   guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
   enabled   Boolean  @default(false)
+  botId     String?
   channelId String?
   messageId String? // message édité à chaque rapport, plutôt que d'en renvoyer un nouveau
   updatedAt DateTime @updatedAt
@@ -195,6 +201,7 @@ model ReactionRolePanel {
   guildId     String
   guild       Guild                @relation(fields: [guildId], references: [id], onDelete: Cascade)
   channelId   String?
+  botId       String?
   messageId   String? // message édité à chaque republication, plutôt que d'en renvoyer un nouveau
   title       String               @default("Rôles")
   description String               @default("Clique sur un bouton pour obtenir ou retirer un rôle.")

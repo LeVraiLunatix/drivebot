@@ -3,6 +3,7 @@ import { prisma } from "@drivebot/database";
 import { triggerReload } from "@/lib/bot";
 
 export interface VerificationFormData {
+  botId: string | null;
   enabled: boolean;
   channelId: string | null;
   verifiedRoleId: string | null;
@@ -13,6 +14,7 @@ export interface VerificationFormData {
 }
 
 const DEFAULTS: VerificationFormData = {
+  botId: null,
   enabled: false,
   channelId: null,
   verifiedRoleId: null,
@@ -29,6 +31,7 @@ export async function loadVerificationConfig(
   const c = await prisma.verificationConfig.findUnique({ where: { guildId } });
   if (!c) return DEFAULTS;
   return {
+    botId: c.botId,
     enabled: c.enabled,
     channelId: c.channelId,
     verifiedRoleId: c.verifiedRoleId,
@@ -45,6 +48,7 @@ export async function saveVerificationConfig(
 ): Promise<void> {
   await prisma.guild.upsert({ where: { id: guildId }, create: { id: guildId }, update: {} });
   const data = {
+    botId: d.botId,
     enabled: d.enabled,
     channelId: d.channelId,
     verifiedRoleId: d.verifiedRoleId,
