@@ -7,6 +7,7 @@ export interface GuildMeta {
   memberCount: number;
   channels: { id: string; name: string }[];
   categories: { id: string; name: string }[];
+  forums: { id: string; name: string }[];
   roles: { id: string; name: string; color: number }[];
 }
 
@@ -42,6 +43,7 @@ export function getGuildMeta(guildId: string): GuildMeta | null {
     memberCount: guild.memberCount,
     channels,
     categories,
+    forums: guild.channels.cache.filter((c) => c.type === ChannelType.GuildForum).map((c) => ({ id: c.id, name: c.name })),
     roles,
   };
 }

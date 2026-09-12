@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { BotStatus, GuildMeta } from "@drivebot/types";
 import { saveStatusAction } from "@/app/dashboard/[guildId]/status/actions";
 import type { SaveState } from "@/app/dashboard/[guildId]/welcome/actions";
@@ -41,6 +42,11 @@ export function StatusForm({
   const [enabled, setEnabled] = useState(initial.enabled);
   const [channelId, setChannelId] = useState(initial.channelId ?? "");
 
+  const router = useRouter();
+  useEffect(() => {
+    const timer = setInterval(() => { if (document.visibilityState === "visible") router.refresh(); }, 30_000);
+    return () => clearInterval(timer);
+  }, [router]);
   const channels = meta?.channels ?? [];
   const channelOptions =
     channelId && !channels.some((c) => c.id === channelId)
@@ -61,11 +67,11 @@ export function StatusForm({
         aside={
           <span
             className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ${
-              status ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
+              status?.online ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
             }`}
           >
-            <span className={`size-2 rounded-full ${status ? "bg-emerald-400" : "bg-red-400"}`} />
-            {status ? "En ligne" : "Hors ligne"}
+            <span className={`size-2 rounded-full ${status?.online ? "bg-emerald-400" : "bg-red-400"}`} />
+            {status?.online ? "En ligne" : "Hors ligne"}
           </span>
         }
       >

@@ -25,7 +25,7 @@ export async function collectBotStatus(): Promise<BotStatus> {
   const memberCount = client.guilds.cache.reduce((sum, g) => sum + g.memberCount, 0);
 
   return {
-    online: true,
+    online: client.isReady(),
     pingMs: Math.round(client.ws.ping),
     uptimeSeconds: Math.round(process.uptime()),
     guildCount: client.guilds.cache.size,

@@ -3,6 +3,7 @@ import { getGuildMeta } from "@/lib/bot";
 import { loadModerationConfig, recentCases } from "@/lib/config/moderation";
 import { loadProtectionConfig } from "@/lib/config/protection";
 import { ModerationForm } from "@/components/config/ModerationForm";
+import { ModerationControl } from "@/components/config/ModerationControl";
 import { ProtectionForm } from "@/components/config/ProtectionForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/Card";
@@ -40,6 +41,7 @@ export default async function ModerationPage({
       />
 
       <div className="flex flex-col gap-6">
+        <ModerationControl guildId={guildId} />
         <ModerationForm guildId={guildId} meta={meta} initial={initial} />
 
         <ProtectionForm guildId={guildId} initial={protection} />

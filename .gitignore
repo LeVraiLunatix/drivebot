@@ -30,3 +30,6 @@ Thumbs.db
 
 # misc
 *.tsbuildinfo
+.vercel
+data/bot-controls.json
+data/bot-controls.json.tmp

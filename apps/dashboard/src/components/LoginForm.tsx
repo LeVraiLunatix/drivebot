@@ -18,12 +18,15 @@ export function LoginForm() {
           name="password"
           autoFocus
           autoComplete="current-password"
+          required
+          placeholder="Ton mot de passe"
+          disabled={pending}
           className="field-input font-mono"
           aria-invalid={state.error ? true : undefined}
         />
       </label>
       <button type="submit" disabled={pending} className="btn-primary w-full">
-        {pending ? "Connexion…" : "Entrer"}
+        {pending ? "Connexion…" : "Accéder à mes bots →"}
       </button>
       {state.error && (
         <span role="alert" className="text-sm" style={{ color: "var(--danger)" }}>

@@ -45,7 +45,7 @@ export async function recordCase(params: {
     .setTitle(LABELS[type])
     .addFields(
       { name: "Membre", value: `${targetTag} (${targetUserId})` },
-      { name: "Modérateur", value: `<@${moderatorId}>` },
+      { name: "Modérateur", value: moderatorId === "dashboard-owner" ? "Propriétaire (dashboard)" : `<@${moderatorId}>` },
       { name: "Raison", value: reason || "Aucune raison fournie" },
     )
     .setTimestamp();

@@ -7,7 +7,7 @@ Bot Discord officiel de [Drivecord](https://drivecord.app), contrôlable via un 
 ```
 apps/
   bot/          discord.js v14 + serveur HTTP santé (UptimeRobot) + API interne de reload
-  dashboard/    Next.js 16 + Auth.js v5 (Discord OAuth)  ← à venir
+  dashboard/    Next.js 16 + Auth.js v5 (mot de passe propriétaire)
 packages/
   database/     schéma Prisma partagé (config par serveur) + client
   types/        types TS partagés bot ↔ dashboard
@@ -69,6 +69,41 @@ npm run dashboard:dev                                      # http://localhost:30
 Voir [`.env.example`](.env.example). `INTERNAL_API_SECRET` doit être **identique** côté bot et côté dashboard.
 
 ## Roadmap
+
+Le dashboard propose aussi **Mes bots** (inventaire Discord, rechargement de configuration),
+les actions de modération web avec confirmation et historique, et les réglages de suggestions
+sur un forum. Le statut vérifie la connexion Discord et s'actualise toutes les 30 secondes.
+Le cache de configuration expire après 30 secondes même si le rappel HTTP échoue.
+
+Les bots fournis dans `MANAGED_BOTS_JSON` sont pilotables individuellement : connexion,
+présence, activité, surnom du serveur, nom global et publication de messages (avec confirmation).
+Au premier démarrage, les bots secondaires restent déconnectés jusqu'à leur activation
+dans **Mes bots**. Drivebot reste connecté pour les modules de gestion du serveur.
+Les préférences sont enregistrées dans `data/bot-controls.json` sur le serveur :
+ce fichier ne contient aucun token et doit être conservé lors des déploiements.
+Les bots tiers sans token, comme Patreon, restent seulement inventoriés.
+Les tokens seuls ne fournissent pas des fonctionnalités métier comme la musique ou les quiz :
+celles-ci nécessitent du code spécifique en plus de ces commandes de gestion Discord.
+Ces nouvelles commandes exigent de déployer aussi la version correspondante de `apps/bot`.
+Le dashboard ne démarre ni ne redémarre les processus du VPS.
+
+Pour importer explicitement le fichier de tokens du propriétaire :
+`node scripts/import-bot-tokens.mjs "D:/Cordsuite Bot discord token.txt"`.
+Les secrets sont écrits uniquement dans `.env`, ignoré par Git.
+`node scripts/deploy-bot-oracle.mjs` sauvegarde le code et `.env` sur Oracle,
+met à jour les sources et les tokens, puis redémarre seulement le processus Drivebot existant.
+Il ne publie pas le dashboard sur Vercel et ne modifie pas Sona.
+
+Validation locale : `node --import tsx --test apps/bot/src/lib/dashboardControl.test.ts`,
+`npm run dashboard:build`, puis, dashboard démarré,
+`node scripts/dashboard-smoke.mjs` (authentification et lecture des pages, aucune sanction).
+Le test lit `apps/dashboard/.env.local` sans afficher ses secrets ; son `AUTH_URL`
+doit correspondre au port utilisé (`DASHBOARD_TEST_URL` permet de cibler une autre URL locale).
+
+Pour accéder à Oracle en local sans exposer le secret sur HTTP public :
+`ssh -N -L 127.0.0.1:3108:127.0.0.1:3001 -i ~/.ssh/drivebot-oracle.key ubuntu@141.253.108.13`,
+puis `BOT_INTERNAL_URL=http://127.0.0.1:3108` dans le fichier local.
+Le tunnel doit rester ouvert ; en production, utiliser une connexion privée ou HTTPS.
 
 - [x] Fondation monorepo + schéma Prisma + bot (bienvenue, autorole, départ, slash commands, santé/reload)
 - [x] Dashboard Next.js : accès par mot de passe (propriétaire), gestion du seul serveur Drivecord

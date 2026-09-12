@@ -8,12 +8,20 @@ import { sendEmbedToChannel } from "./lib/sendEmbed.js";
 import { publishTicketPanel } from "./lib/tickets.js";
 import { publishVerificationPanel } from "./lib/verification.js";
 import { publishReactionRolePanel } from "./lib/reactionRoles.js";
+import { listGuildBots, moderateFromDashboard } from "./lib/dashboardControl.js";
+import { controlManagedBot } from "./lib/managedBots.js";
 
 /** Lit et parse un corps de requête JSON. */
 function readJson(req: import("node:http").IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
     let body = "";
-    req.on("data", (c) => (body += c));
+    let bytes = 0;
+    req.on("data", (c) => {
+      bytes += Buffer.byteLength(c);
+      if (bytes > 65_536) { reject(new Error("body too large")); return; }
+      body += c;
+    });
+    req.on("error", reject);
     req.on("end", () => {
       try {
         resolve(JSON.parse(body || "{}"));
@@ -70,6 +78,31 @@ export function startHealthServer(): void {
     }
 
     const metaMatch = url.match(/^\/internal\/guilds\/(\d+)\/meta$/);
+    const managedMatch = url.match(/^\/internal\/guilds\/(\d+)\/bots\/(\d+)\/control$/);
+    if (method === "POST" && managedMatch) {
+      readJson(req).then((body) => controlManagedBot(managedMatch[1], managedMatch[2], body)).then((result) => {
+        res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+      }).catch(() => {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, error: "Discord a refusé la commande ou n'a pas répondu. Vérifie les permissions et l'état du bot avant de réessayer." }));
+      });
+      return;
+    }
+    const controlMatch = url.match(/^\/internal\/guilds\/(\d+)\/(bots|moderate)$/);
+    if (controlMatch && ((method === "GET" && controlMatch[2] === "bots") || (method === "POST" && controlMatch[2] === "moderate"))) {
+      const operation = controlMatch[2] === "bots"
+        ? listGuildBots(controlMatch[1]).then((bots) => ({ ok: true, bots }))
+        : readJson(req).then((body) => moderateFromDashboard(controlMatch[1], body));
+      operation.then((result) => {
+        res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+      }).catch(() => {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, error: "Opération impossible. Vérifie la cible, les permissions et la connexion Discord." }));
+      });
+      return;
+    }
     if (method === "GET" && metaMatch) {
       const meta = getGuildMeta(metaMatch[1]);
       if (!meta) {

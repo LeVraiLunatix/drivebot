@@ -58,6 +58,7 @@ export function Sidebar({
       items: [
         { href: `${base}/reaction-roles`, label: "Rôles à la carte", icon: <IconTag /> },
         { href: `${base}/embeds`, label: "Embeds", icon: <IconMessage /> },
+        { href: `${base}/suggestions`, label: "Suggestions", icon: <IconMessage /> },
       ],
     },
     {
@@ -70,6 +71,7 @@ export function Sidebar({
     {
       label: "Système",
       items: [
+        { href: `${base}/bots`, label: "Mes bots", icon: <IconActivity /> },
         { href: `${base}/settings`, label: "Paramètres", icon: <IconSettings /> },
         { href: `${base}/status`, label: "Statut du bot", icon: <IconActivity /> },
       ],

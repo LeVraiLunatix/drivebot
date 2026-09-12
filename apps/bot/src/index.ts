@@ -8,6 +8,7 @@ import { onGuildMemberRemove } from "./events/guildMemberRemove.js";
 import { onInteractionCreate } from "./events/interactionCreate.js";
 import { onThreadCreate } from "./events/threadCreate.js";
 import { onMessageCreate } from "./events/messageCreate.js";
+import { startManagedBots, stopManagedBots } from "./lib/managedBots.js";
 
 client.once(Events.ClientReady, (c) => {
   console.log(`[bot] connecté en tant que ${c.user.tag}`);
@@ -23,13 +24,16 @@ client.on(Events.MessageCreate, onMessageCreate);
 // Serveur HTTP (santé UptimeRobot + reload de config depuis le dashboard).
 startHealthServer();
 
-client.login(config.token);
+startManagedBots().catch(() => {
+  console.error("[bot] Configuration multi-bots invalide. Vérifier MANAGED_BOTS_JSON et data/bot-controls.json.");
+  process.exit(1);
+});
 
 // Arrêt propre.
 for (const sig of ["SIGINT", "SIGTERM"] as const) {
-  process.on(sig, () => {
+  process.on(sig, async () => {
     console.log(`[bot] arrêt (${sig})`);
-    client.destroy();
+    await stopManagedBots();
     process.exit(0);
   });
 }

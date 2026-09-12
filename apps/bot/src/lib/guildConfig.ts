@@ -7,6 +7,8 @@ export type FullGuildConfig = NonNullable<
 >;
 
 const cache = new Map<string, FullGuildConfig>();
+const loadedAt = new Map<string, number>();
+const CACHE_TTL_MS = 30_000;
 
 async function fetchGuildConfig(guildId: string) {
   return prisma.guild.findUnique({
@@ -26,18 +28,20 @@ async function fetchGuildConfig(guildId: string) {
  *  n'existe pas encore en base. */
 export async function getGuildConfig(guildId: string): Promise<FullGuildConfig> {
   const cached = cache.get(guildId);
-  if (cached) return cached;
+  if (cached && Date.now() - (loadedAt.get(guildId) ?? 0) < CACHE_TTL_MS) return cached;
 
   let cfg = await fetchGuildConfig(guildId);
   if (!cfg) {
-    await prisma.guild.create({ data: { id: guildId } });
+    await prisma.guild.upsert({ where: { id: guildId }, create: { id: guildId }, update: {} });
     cfg = await fetchGuildConfig(guildId);
   }
   cache.set(guildId, cfg!);
+  loadedAt.set(guildId, Date.now());
   return cfg!;
 }
 
 /** Vide le cache pour un serveur (appelé par l'API interne /internal/reload). */
 export function invalidateGuildConfig(guildId: string): void {
   cache.delete(guildId);
+  loadedAt.delete(guildId);
 }

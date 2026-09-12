@@ -17,7 +17,7 @@ export async function assertGuildAccess(
   guildId: string,
 ): Promise<GuardedGuild> {
   const session = await auth();
-  if (!session) redirect("/");
+  if (!session?.user) redirect("/");
   if (!DRIVECORD_GUILD_ID || guildId !== DRIVECORD_GUILD_ID) redirect("/dashboard");
 
   const meta = await getGuildMeta(guildId);
