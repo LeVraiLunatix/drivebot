@@ -4,6 +4,19 @@ import type { BotStatus } from "@drivebot/types";
 import { client } from "../client.js";
 import { editAsManagedBot, managedBotStatuses, sendAsManagedBot } from "./managedBots.js";
 
+const botSites: Record<string, { label: string; url: string }> = {
+  cordbot: { label: "cordsuite.app", url: "https://cordsuite.app" },
+  drivebot: { label: "drivecord.app", url: "https://drivecord.app" },
+  tunebot: { label: "tunecord.vercel.app", url: "https://tunecord.vercel.app" },
+  passbot: { label: "Passcord", url: "https://cordsuite.app/bientot/passcord" },
+  notebot: { label: "Notecord", url: "https://cordsuite.app/bientot/notecord" },
+  linkbot: { label: "Linkcord", url: "https://cordsuite.app/bientot/linkcord" },
+  bentobot: { label: "Bentocord", url: "https://cordsuite.app/bientot/bentocord" },
+  gobot: { label: "Gocord", url: "https://cordsuite.app/bientot/gocord" },
+  quizbot: { label: "Quizcord", url: "https://cordsuite.app/bientot/quizcord" },
+  budgetbot: { label: "Budgetcord", url: "https://cordsuite.app/bientot/budgetcord" },
+};
+
 /** Vérifie que la base de données répond. */
 async function checkDatabase(): Promise<boolean> {
   try {
@@ -31,8 +44,7 @@ export async function collectBotStatus(): Promise<BotStatus> {
   };
 }
 
-async function buildSiteStatusEmbed(): Promise<EmbedBuilder> {
-  const siteUrl = process.env.STATUS_SITE_URL || "https://cordsuite.app";
+async function checkSite(siteUrl: string) {
   const started = Date.now();
   let online = false;
   let statusCode: number | null = null;
@@ -41,7 +53,12 @@ async function buildSiteStatusEmbed(): Promise<EmbedBuilder> {
     statusCode = response.status;
     online = response.status < 500;
   } catch {}
-  const latency = Date.now() - started;
+  return { online, statusCode, latency: Date.now() - started };
+}
+
+async function buildSiteStatusEmbed(): Promise<EmbedBuilder> {
+  const siteUrl = process.env.STATUS_SITE_URL || "https://cordsuite.app";
+  const { online, statusCode, latency } = await checkSite(siteUrl);
   return new EmbedBuilder()
     .setColor(online ? 0x2ecc71 : 0xe74c3c)
     .setTitle(`${online ? "🟢" : "🔴"} cordsuite.app`)
@@ -56,10 +73,12 @@ async function buildSiteStatusEmbed(): Promise<EmbedBuilder> {
     .setTimestamp();
 }
 
-function buildManagedBotStatusEmbed(bot: ReturnType<typeof managedBotStatuses>[number]): EmbedBuilder {
+async function buildManagedBotStatusEmbed(bot: ReturnType<typeof managedBotStatuses>[number]): Promise<EmbedBuilder> {
   const since = bot.connectedAt ? `<t:${Math.floor(bot.connectedAt.getTime() / 1000)}:R>` : "—";
   const activity = bot.preferences.activity || "Aucune activité";
-  return new EmbedBuilder()
+  const site = botSites[bot.name.toLowerCase()] ?? null;
+  const siteStatus = site ? await checkSite(site.url) : null;
+  const embed = new EmbedBuilder()
     .setColor(bot.online ? 0x2ecc71 : 0xe74c3c)
     .setTitle(`${bot.online ? "🟢" : "🔴"} ${bot.name}`)
     .setThumbnail(bot.avatarUrl)
@@ -74,6 +93,14 @@ function buildManagedBotStatusEmbed(bot: ReturnType<typeof managedBotStatuses>[n
     )
     .setFooter({ text: "Mise à jour automatique toutes les 30 minutes" })
     .setTimestamp();
+  if (site && siteStatus) {
+    embed.addFields(
+      { name: "Site individuel", value: `[${site.label}](${site.url})`, inline: true },
+      { name: "État du site", value: siteStatus.online ? "🟢 En ligne" : "🔴 Indisponible", inline: true },
+      { name: "Réponse du site", value: `${siteStatus.latency} ms · HTTP ${siteStatus.statusCode ?? "—"}`, inline: true },
+    );
+  }
+  return embed;
 }
 
 /** Édite le message de rapport existant, ou en envoie un nouveau si introuvable
@@ -115,12 +142,14 @@ export async function publishStatusBoard(guildId: string): Promise<{ ok: boolean
   );
   if (siteMessageId) next.site = siteMessageId;
 
-  for (const bot of managedBotStatuses()) {
+  const bots = managedBotStatuses();
+  const botEmbeds = await Promise.all(bots.map(buildManagedBotStatusEmbed));
+  for (const [index, bot] of bots.entries()) {
     const messageId = await upsertStatusMessage(
       guildId,
       cfg.channelId,
       next[`bot:${bot.id}`] || null,
-      buildManagedBotStatusEmbed(bot),
+      botEmbeds[index],
       bot.id,
     );
     if (messageId) next[`bot:${bot.id}`] = messageId;

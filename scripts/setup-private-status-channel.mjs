@@ -21,7 +21,10 @@ try {
   const staffRoles = roles.filter((role) => role.id !== guildId && !role.tags?.bot_id && staffPattern.test(role.name));
   if (staffRoles.length === 0) throw new Error("Aucun rôle staff reconnu : arrêt avant modification des permissions.");
 
-  const botIds = JSON.parse(process.env.MANAGED_BOTS_JSON || "[]").map((bot) => bot.id);
+  const managedBots = JSON.parse(process.env.MANAGED_BOTS_JSON || "[]");
+  const cordBot = managedBots.find((bot) => /^cordbot$/i.test(bot.name));
+  if (!cordBot?.id) throw new Error("CordBot introuvable dans la configuration multi-bots.");
+  const botIds = managedBots.map((bot) => bot.id);
   botIds.unshift(process.env.DISCORD_CLIENT_ID);
   const view = PermissionFlagsBits.ViewChannel;
   const staffAllow = view | PermissionFlagsBits.ReadMessageHistory | PermissionFlagsBits.SendMessages;
@@ -53,14 +56,24 @@ try {
   });
 
   await prisma.guild.upsert({ where: { id: guildId }, create: { id: guildId }, update: {} });
+  const previousStatus = await prisma.botStatusConfig.findUnique({ where: { guildId } });
+  const previousMessages = previousStatus?.messageIds && typeof previousStatus.messageIds === "object" && !Array.isArray(previousStatus.messageIds)
+    ? { ...previousStatus.messageIds }
+    : {};
+  const previousSiteMessage = previousMessages.site || previousStatus?.messageId;
+  if (previousSiteMessage && previousStatus?.channelId) {
+    await rest.delete(Routes.channelMessage(previousStatus.channelId, previousSiteMessage)).catch(() => {});
+  }
+  delete previousMessages.site;
   await prisma.botStatusConfig.upsert({
     where: { guildId },
-    create: { guildId, enabled: true, channelId: statusChannel.id, botId: process.env.DISCORD_CLIENT_ID },
-    update: { enabled: true, channelId: statusChannel.id },
+    create: { guildId, enabled: true, channelId: statusChannel.id, botId: cordBot.id, messageIds: previousMessages },
+    update: { enabled: true, channelId: statusChannel.id, botId: cordBot.id, messageId: null, messageIds: previousMessages },
   });
 
   console.log(`Salon #${statusChannel.name} déplacé dans ${categoryName}.`);
   console.log(`Accès staff : ${staffRoles.map((role) => role.name).join(", ")}.`);
+  console.log("Le statut principal de cordsuite.app est attribué à CordBot.");
 } finally {
   await prisma.$disconnect();
 }
