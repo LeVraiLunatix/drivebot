@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import type { GuildBot } from "@/lib/bot";
 import { useBotSelection } from "@/components/BotSelection";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { IconHome, IconSettings, IconWave, IconMessage, IconShield, IconTicket, IconVerified, IconActivity, IconTag } from "@/components/ui/Icons";
+import { IconHome, IconHash, IconSettings, IconWave, IconMessage, IconShield, IconTicket, IconVerified, IconActivity, IconTag } from "@/components/ui/Icons";
 
 interface NavItem { href: string; label: string; icon: ReactNode }
 interface NavGroup { label: string | null; items: NavItem[] }
@@ -34,6 +34,7 @@ export function Sidebar({ guildId, name, iconUrl, footer, bots }: {
   const groups: NavGroup[] = [
     { label: null, items: [{ href: base, label: "Vue d’ensemble", icon: <IconHome /> }] },
     { label: "Communauté", items: [
+      { href: `${base}/server`, label: "Serveur & publications", icon: <IconHash /> },
       { href: `${base}/welcome`, label: "Bienvenue", icon: <IconWave /> },
       { href: `${base}/verification`, label: "Vérification", icon: <IconVerified /> },
       { href: `${base}/reaction-roles`, label: "Rôles", icon: <IconTag /> },

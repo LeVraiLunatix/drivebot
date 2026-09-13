@@ -65,3 +65,34 @@ export interface BotStatus {
   dbOk: boolean;
   startedAt: string; // ISO 8601
 }
+
+export interface CommunityPublication {
+  key: string;
+  label: string;
+  channelId: string;
+  channelName: string;
+  published: boolean;
+  messageUrl: string | null;
+  sender: string | null;
+  embedCount: number;
+  hasComponents: boolean;
+  updatedAt: string | null;
+}
+
+export interface CommunityOverview {
+  syncedAt: string;
+  publications: CommunityPublication[];
+  onboarding: {
+    verifiedRole: string | null;
+    unverifiedRole: string | null;
+    rulesChannel: string | null;
+    verificationChannel: string | null;
+    checks: {
+      newcomersRestricted: boolean;
+      rulesVisibleBeforeVerification: boolean;
+      verificationVisibleBeforeVerification: boolean;
+      verificationHiddenAfterVerification: boolean;
+    };
+    ready: boolean;
+  };
+}

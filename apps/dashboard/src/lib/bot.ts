@@ -1,5 +1,5 @@
 import "server-only";
-import type { BotStatus, GuildMeta } from "@drivebot/types";
+import type { BotStatus, CommunityOverview, GuildMeta } from "@drivebot/types";
 
 const BOT_URL = process.env.BOT_INTERNAL_URL ?? "http://localhost:3001";
 const SECRET = process.env.INTERNAL_API_SECRET ?? "";
@@ -43,6 +43,21 @@ export async function getGuildMeta(guildId: string): Promise<GuildMeta | null> {
     });
     if (!res.ok) return null;
     return (await res.json()) as GuildMeta;
+  } catch {
+    return null;
+  }
+}
+
+/** Publications officielles et accès d'onboarding, lus directement sur Discord. */
+export async function getCommunityOverview(guildId: string): Promise<CommunityOverview | null> {
+  try {
+    const res = await fetch(`${BOT_URL}/internal/guilds/${guildId}/community-overview`, {
+      headers: { "x-internal-secret": SECRET },
+      signal: AbortSignal.timeout(20_000),
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as CommunityOverview;
   } catch {
     return null;
   }

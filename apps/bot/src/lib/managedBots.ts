@@ -113,6 +113,24 @@ export async function reactAsManagedBot(botId: string | null | undefined, channe
   await entry.rest.put(Routes.channelMessageOwnReaction(channelId, messageId, encodeURIComponent(emoji)));
 }
 
+/** Lit les messages avec l'identité du bot demandé, notamment pour vérifier
+ * les publications de CordBot sans dépendre de l'intent Message Content de Drivebot. */
+export async function listManagedBotChannelMessages(
+  botName: string,
+  guildId: string,
+  channelId: string,
+  limit = 100,
+): Promise<APIMessage[]> {
+  const entry = [...entries.values()].find((candidate) => candidate.name.toLowerCase() === botName.toLowerCase());
+  if (!entry) throw new Error(`${botName} n'est pas configuré.`);
+  const channel = await entry.rest.get(Routes.channel(channelId)) as RESTGetAPIChannelResult;
+  if (!("guild_id" in channel) || channel.guild_id !== guildId || ![0, 5].includes(channel.type)) {
+    throw new Error("Salon textuel invalide.");
+  }
+  const query = new URLSearchParams({ limit: String(Math.max(1, Math.min(100, limit))) });
+  return entry.rest.get(Routes.channelMessages(channelId), { query }) as Promise<APIMessage[]>;
+}
+
 export async function managedBotInventory(guildId: string) {
   // Les tokens restent uniquement dans ce processus. Aucun objet Entry n'est renvoyé.
   const guild = client.guilds.cache.get(guildId);

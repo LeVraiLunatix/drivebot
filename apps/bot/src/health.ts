@@ -10,6 +10,7 @@ import { publishVerificationPanel } from "./lib/verification.js";
 import { publishReactionRolePanel } from "./lib/reactionRoles.js";
 import { listGuildBots, moderateFromDashboard } from "./lib/dashboardControl.js";
 import { controlManagedBot } from "./lib/managedBots.js";
+import { getCommunityOverview } from "./lib/communityOverview.js";
 
 /** Lit et parse un corps de requête JSON. */
 function readJson(req: import("node:http").IncomingMessage): Promise<unknown> {
@@ -78,6 +79,7 @@ export function startHealthServer(): void {
     }
 
     const metaMatch = url.match(/^\/internal\/guilds\/(\d+)\/meta$/);
+    const communityMatch = url.match(/^\/internal\/guilds\/(\d+)\/community-overview$/);
     const managedMatch = url.match(/^\/internal\/guilds\/(\d+)\/bots\/(\d+)\/control$/);
     if (method === "POST" && managedMatch) {
       readJson(req).then((body) => controlManagedBot(managedMatch[1], managedMatch[2], body)).then((result) => {
@@ -121,6 +123,17 @@ export function startHealthServer(): void {
         res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
         res.end(JSON.stringify(result));
       }).catch(() => res.writeHead(500).end());
+      return;
+    }
+
+    if (method === "GET" && communityMatch) {
+      getCommunityOverview(communityMatch[1])
+        .then((overview) => {
+          if (!overview) { res.writeHead(404).end(); return; }
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(overview));
+        })
+        .catch(() => res.writeHead(500).end());
       return;
     }
 

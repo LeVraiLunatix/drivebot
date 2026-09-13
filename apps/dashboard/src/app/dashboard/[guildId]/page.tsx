@@ -1,5 +1,5 @@
 import { assertGuildAccess } from "@/lib/guard";
-import { getGuildMeta } from "@/lib/bot";
+import { getCommunityOverview, getGuildMeta } from "@/lib/bot";
 import { loadWelcomeConfig } from "@/lib/config/welcome";
 import { loadModerationConfig } from "@/lib/config/moderation";
 import { loadTicketsConfig } from "@/lib/config/tickets";
@@ -30,7 +30,7 @@ export default async function GuildHomePage({
   const { guildId } = await params;
   const guild = await assertGuildAccess(guildId);
 
-  const [meta, welcome, moderation, tickets, verification, templates, statusCfg] = await Promise.all([
+  const [meta, welcome, moderation, tickets, verification, templates, statusCfg, community] = await Promise.all([
     getGuildMeta(guildId),
     loadWelcomeConfig(guildId),
     loadModerationConfig(guildId),
@@ -38,12 +38,20 @@ export default async function GuildHomePage({
     loadVerificationConfig(guildId),
     listTemplates(guildId),
     loadStatusConfig(guildId),
+    getCommunityOverview(guildId),
   ]);
 
   const base = `/dashboard/${guildId}`;
   const online = meta !== null;
 
   const features: Feature[] = [
+    {
+      href: `${base}/server`,
+      icon: <IconHash />,
+      title: "Serveur & publications",
+      desc: community ? `${community.publications.filter((item) => item.published).length}/${community.publications.length} messages officiels synchronisés` : "Synchronisation indisponible",
+      enabled: community?.onboarding.ready === true,
+    },
     {
       href: `${base}/welcome`,
       icon: <IconWave />,
