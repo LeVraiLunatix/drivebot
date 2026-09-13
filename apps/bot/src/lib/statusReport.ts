@@ -4,12 +4,6 @@ import type { BotStatus } from "@drivebot/types";
 import { client } from "../client.js";
 import { editAsManagedBot, managedBotStatuses, sendAsManagedBot } from "./managedBots.js";
 
-function formatUptime(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return `${h}h ${m}min`;
-}
-
 /** Vérifie que la base de données répond. */
 async function checkDatabase(): Promise<boolean> {
   try {
@@ -35,27 +29,6 @@ export async function collectBotStatus(): Promise<BotStatus> {
     dbOk,
     startedAt: new Date(Date.now() - process.uptime() * 1000).toISOString(),
   };
-}
-
-/** Construit l'embed d'état du centre de contrôle. */
-async function buildControlStatusEmbed(): Promise<EmbedBuilder> {
-  const status = await collectBotStatus();
-  const startedUnix = Math.floor(new Date(status.startedAt).getTime() / 1000);
-
-  return new EmbedBuilder()
-    .setColor(0x2ecc71)
-    .setTitle("🟢 État du centre de contrôle")
-    .addFields(
-      { name: "Statut", value: "En ligne", inline: true },
-      { name: "Ping", value: `${status.pingMs} ms`, inline: true },
-      { name: "Uptime", value: formatUptime(status.uptimeSeconds), inline: true },
-      { name: "Serveurs", value: `${status.guildCount}`, inline: true },
-      { name: "Membres", value: `${status.memberCount}`, inline: true },
-      { name: "Mémoire", value: `${status.memoryMb} MB`, inline: true },
-      { name: "Base de données", value: status.dbOk ? "✅ OK" : "❌ Injoignable", inline: true },
-      { name: "Dernier redémarrage", value: `<t:${startedUnix}:R>`, inline: true },
-    )
-    .setTimestamp();
 }
 
 async function buildSiteStatusEmbed(): Promise<EmbedBuilder> {
