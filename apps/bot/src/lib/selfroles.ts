@@ -37,7 +37,7 @@ export async function toggleSelfRole(interaction: ButtonInteraction): Promise<vo
     await interaction.reply({ content: `✅ Rôle **${role.name}** ajouté !`, ephemeral: true });
   } catch {
     await interaction.reply({
-      content: "Impossible de modifier ce rôle (vérifie que Drivebot est au-dessus dans la hiérarchie).",
+      content: "Impossible de modifier ce rôle (vérifie que CordBot est au-dessus dans la hiérarchie).",
       ephemeral: true,
     });
   }

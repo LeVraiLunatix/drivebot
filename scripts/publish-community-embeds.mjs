@@ -159,18 +159,38 @@ const publications = [
   {
     channelId: channels.faq,
     key: "faq",
-    embed: {
-      title: "Questions fréquentes ❓",
-      description: "Les réponses rapides aux questions les plus courantes sur la suite.",
-      color: PURPLE,
-      fields: [
-        { name: "Quel bot dois-je utiliser ?", value: `Commence avec ${mention("CordBot")}, le bot principal. Chaque outil et son bot sont présentés dans <#${channels.tools}>.` },
-        { name: "Où suivre les nouveautés ?", value: "Les annonces et mises à jour officielles sont publiées dans la catégorie dédiée à la suite." },
-        { name: "Un outil ne fonctionne pas ?", value: "Consulte d’abord la documentation, puis ouvre une demande dans le salon support avec le plus de détails possible." },
-        { name: "Comment accéder au serveur ?", value: `Lis <#${channels.rules}> puis utilise le bouton dans <#${channels.verification}>.` },
-      ],
-      footer: footer("faq"),
-    },
+    embeds: [
+      {
+        title: "Questions fréquentes ❓",
+        description: "Les réponses essentielles pour comprendre Cordsuite, choisir le bon outil et obtenir de l’aide rapidement.",
+        color: PURPLE,
+      },
+      {
+        title: "☁️ La suite et ses outils",
+        description:
+          `**Qu’est-ce que Cordsuite ?**\nUne suite de services complémentaires réunis sous la même identité. Chaque outil répond à un besoin précis.\n\n**Où découvrir tous les outils ?**\nLe catalogue complet, les liens et les états de disponibilité sont regroupés dans <#${channels.tools}>.\n\n**Quel bot dois-je utiliser ?**\n${mention("CordBot")} est le bot principal du serveur. Chaque produit possède aussi son bot spécialisé, indiqué dans le catalogue.`,
+        color: BLUE,
+      },
+      {
+        title: "🤖 Bots et disponibilité",
+        description:
+          "**Pourquoi plusieurs bots ?**\nChaque bot reste associé à son outil : les commandes et messages sont ainsi plus faciles à reconnaître.\n\n**Où utiliser les commandes ?**\nUtilise le salon `🤖・commandes` afin de garder les autres discussions lisibles.\n\n**Comment savoir si un service fonctionne ?**\nLe salon de statut privé du staff centralise l’état du site et des bots. Les incidents utiles aux membres sont annoncés dans les salons officiels.",
+        color: PURPLE,
+      },
+      {
+        title: "🛟 Aide et signalements",
+        description:
+          "**Un outil ne fonctionne pas ?**\nConsulte la documentation et les tutoriels, puis ouvre un ticket si le problème continue.\n\n**Que mettre dans un ticket ?**\nIndique l’outil concerné, le résultat attendu, ce qui se passe réellement et les étapes déjà essayées. Une capture peut aider, sans information privée.\n\n**J’ai trouvé un bug ou une faille ?**\nTransmets les détails au support. Ne publie jamais publiquement une donnée sensible, un token ou une méthode pouvant mettre les utilisateurs en danger.",
+        color: DARK,
+      },
+      {
+        title: "📣 Informations officielles",
+        description:
+          "**Où suivre les nouveautés ?**\nLes annonces présentent les informations importantes. Les mises à jour détaillent les nouvelles fonctions et les corrections.\n\n**Puis-je choisir ce que je reçois ?**\nOui. Le salon `🔔・notifications` permet d’activer ou retirer les rôles correspondant aux informations et outils que tu veux suivre.",
+        color: PINK,
+        footer: footer("faq"),
+      },
+    ],
   },
   {
     channelId: channels.verification,

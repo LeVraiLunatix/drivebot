@@ -11,6 +11,9 @@ const PUBLICATIONS = [
   { key: "documentation", label: "Documentation", channelId: "1518688646566252714" },
   { key: "faq", label: "FAQ", channelId: "1518688832772509776" },
   { key: "vérification", label: "Vérification", channelId: "1523469828403368008" },
+  { key: "support tickets", label: "Support & tickets", channelId: "1518688820634320986" },
+  { key: "notifications générales", label: "Notifications générales", channelId: "1523704000954896476" },
+  { key: "suivre les outils", label: "Notifications des outils", channelId: "1523704000954896476" },
 ] as const;
 
 const PUBLIC_CATEGORY_IDS = [

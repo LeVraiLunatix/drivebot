@@ -19,7 +19,8 @@ export function buildTicketPanel(cfg: TicketConfig) {
   const embed = new EmbedBuilder()
     .setTitle(cfg.panelTitle)
     .setDescription(cfg.panelDescription)
-    .setColor(cfg.panelColor);
+    .setColor(cfg.panelColor)
+    .setFooter({ text: "Cordsuite • support tickets" });
 
   const button = new ButtonBuilder()
     .setCustomId("ticket:open")

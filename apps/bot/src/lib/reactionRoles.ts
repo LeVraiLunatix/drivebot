@@ -18,7 +18,8 @@ export function buildReactionRolePanel(panel: PanelWithRoles) {
   const embed = new EmbedBuilder()
     .setTitle(panel.title)
     .setDescription(panel.description)
-    .setColor(panel.color);
+    .setColor(panel.color)
+    .setFooter({ text: `Cordsuite • ${panel.title.toLocaleLowerCase("fr-FR")}` });
 
   const sorted = [...panel.roles].sort((a, b) => a.position - b.position);
   const rows: ActionRowBuilder<ButtonBuilder>[] = [];
