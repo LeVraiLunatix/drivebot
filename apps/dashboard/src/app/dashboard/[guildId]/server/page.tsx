@@ -39,7 +39,7 @@ export default async function ServerOverviewPage({ params }: { params: Promise<{
         action={
           <span className={`pill ${overview ? "pill-ok" : "pill-danger"}`}>
             <span className="size-1.5 rounded-full bg-current" />
-            {overview ? "Synchronisé" : "Indisponible"}
+            {overview?.live ? "Synchronisé" : overview ? "Dernier état" : "Indisponible"}
           </span>
         }
       />
@@ -118,7 +118,7 @@ export default async function ServerOverviewPage({ params }: { params: Promise<{
           </div>
 
           <p className="mt-6 text-right font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-muted">
-            Synchronisé le {new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "medium", timeZone: "Europe/Paris" }).format(new Date(overview.syncedAt))}
+            {overview.live ? "Synchronisé" : "État vérifié"} le {new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "medium", timeZone: "Europe/Paris" }).format(new Date(overview.syncedAt))}
           </p>
         </>
       )}

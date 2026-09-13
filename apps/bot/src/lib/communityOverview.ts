@@ -80,6 +80,7 @@ export async function getCommunityOverview(guildId: string) {
   };
 
   return {
+    live: true,
     syncedAt: new Date().toISOString(),
     publications,
     onboarding: {

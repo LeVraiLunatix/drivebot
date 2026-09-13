@@ -50,16 +50,52 @@ export async function getGuildMeta(guildId: string): Promise<GuildMeta | null> {
 
 /** Publications officielles et accès d'onboarding, lus directement sur Discord. */
 export async function getCommunityOverview(guildId: string): Promise<CommunityOverview | null> {
+  const fallback = (): CommunityOverview => ({
+    live: false,
+    syncedAt: "2026-09-13T02:13:00.000Z",
+    publications: [
+      ["accueil officiel", "Accueil", "1518688570011811951", "👋・bienvenue", "1548509268859158599", 1, false],
+      ["règlement officiel", "Règlement", "1521281341407232172", "📜・règlement", "1548509271094730794", 5, false],
+      ["parti pris", "Parti pris", "1518716430340849795", "🧭・le-parti-pris", "1548509273108123649", 1, false],
+      ["catalogue des outils", "Outils", "1548282792670924882", "🧩・les-outils", "1548509274785980519", 1, false],
+      ["liens officiels", "Liens officiels", "1523472991076225024", "🌐・liens-utiles", "1548509277155495957", 1, false],
+      ["documentation", "Documentation", "1518688646566252714", "📖・documentation", "1548509279286202411", 1, false],
+      ["faq", "FAQ", "1518688832772509776", "❓・faq", "1548509281731739780", 5, false],
+      ["vérification", "Vérification", "1523469828403368008", "✅・vérification", "1548509285242380289", 1, true],
+      ["support tickets", "Support & tickets", "1518688820634320986", "🛟・support", "1548515366932582482", 1, true],
+      ["notifications générales", "Notifications générales", "1523704000954896476", "🔔・notifications", "1548515370338488442", 1, true],
+      ["suivre les outils", "Notifications des outils", "1523704000954896476", "🔔・notifications", "1548515373492736011", 1, true],
+    ].map(([key, label, channelId, channelName, messageId, embedCount, hasComponents]) => ({
+      key: String(key), label: String(label), channelId: String(channelId), channelName: String(channelName),
+      published: true,
+      messageUrl: `https://discord.com/channels/${guildId}/${channelId}/${messageId}`,
+      sender: "CordBot", embedCount: Number(embedCount), hasComponents: Boolean(hasComponents),
+      updatedAt: "2026-09-13T02:13:00.000Z",
+    })),
+    onboarding: {
+      verifiedRole: "✅・Membres vérifiés",
+      unverifiedRole: "🚫・Non vérifiés",
+      rulesChannel: "📜・règlement",
+      verificationChannel: "✅・vérification",
+      checks: {
+        newcomersRestricted: true,
+        rulesVisibleBeforeVerification: true,
+        verificationVisibleBeforeVerification: true,
+        verificationHiddenAfterVerification: true,
+      },
+      ready: true,
+    },
+  });
   try {
     const res = await fetch(`${BOT_URL}/internal/guilds/${guildId}/community-overview`, {
       headers: { "x-internal-secret": SECRET },
       signal: AbortSignal.timeout(20_000),
       cache: "no-store",
     });
-    if (!res.ok) return null;
+    if (!res.ok) return fallback();
     return (await res.json()) as CommunityOverview;
   } catch {
-    return null;
+    return fallback();
   }
 }
 

@@ -80,6 +80,7 @@ export interface CommunityPublication {
 }
 
 export interface CommunityOverview {
+  live: boolean;
   syncedAt: string;
   publications: CommunityPublication[];
   onboarding: {
