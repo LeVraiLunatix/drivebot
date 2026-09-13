@@ -192,6 +192,7 @@ model BotStatusConfig {
   botId     String?
   channelId String?
   messageId String? // message édité à chaque rapport, plutôt que d'en renvoyer un nouveau
+  messageIds Json?  // messages du site et de chaque bot, indexés par service
   updatedAt DateTime @updatedAt
 }
 

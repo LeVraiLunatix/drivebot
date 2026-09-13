@@ -7,7 +7,7 @@ import { config } from "../config.js";
 import { client } from "../client.js";
 import { defaultPreferences, validatePreferences, type BotPreferences } from "./managedBotInput.js";
 
-type Entry = { id: string; name: string; token: string; client: Client; rest: REST; primary: boolean; preferences: BotPreferences; error: string | null };
+type Entry = { id: string; name: string; token: string; client: Client; rest: REST; primary: boolean; preferences: BotPreferences; error: string | null; connectedAt: Date | null };
 const entries = new Map<string, Entry>();
 const settingsPath = fileURLToPath(new URL("../../../../data/bot-controls.json", import.meta.url));
 let settings: Record<string, BotPreferences> = {};
@@ -59,10 +59,10 @@ export async function startManagedBots(wireClient?: (managedClient: Client) => v
     // Client.destroy() efface son token REST : un client REST distinct permet de
     // gérer le profil et de réactiver un bot dont la gateway est déconnectée.
     const rest = new REST({ version: "10", timeout: 12_000, retries: 0 }).setToken(credential.token);
-    const entry: Entry = { ...credential, client: botClient, rest, primary, preferences: { ...(settings[credential.id] || defaultPreferences), ...(primary ? { enabled: true } : {}) }, error: null };
+    const entry: Entry = { ...credential, client: botClient, rest, primary, preferences: { ...(settings[credential.id] || defaultPreferences), ...(primary ? { enabled: true } : {}) }, error: null, connectedAt: null };
     entries.set(entry.id, entry);
     if (!primary) wireClient?.(botClient);
-    botClient.on(Events.ClientReady, () => { entry.error = null; applyPresence(entry); });
+    botClient.on(Events.ClientReady, () => { entry.error = null; entry.connectedAt = new Date(); applyPresence(entry); });
     botClient.on(Events.Error, () => { entry.error = "Connexion Discord interrompue."; });
     if (entry.preferences.enabled) await connect(entry);
   }
@@ -130,6 +130,21 @@ export async function managedBotInventory(guildId: string) {
       roles: member.roles.cache.filter((r) => r.id !== guildId).map((r) => r.name),
     };
   }).sort((a, b) => Number(b.primary) - Number(a.primary) || a.name.localeCompare(b.name));
+}
+
+/** État technique minimal de chaque bot géré, sans jamais exposer les tokens. */
+export function managedBotStatuses() {
+  return [...entries.values()].map((entry) => ({
+    id: entry.id,
+    name: entry.client.user?.username || entry.name,
+    avatarUrl: entry.client.user?.displayAvatarURL({ size: 128 }) ?? null,
+    online: entry.client.isReady(),
+    pingMs: entry.client.isReady() ? Math.round(entry.client.ws.ping) : null,
+    connectedAt: entry.connectedAt,
+    preferences: entry.preferences,
+    error: entry.error,
+    primary: entry.primary,
+  })).sort((a, b) => Number(b.primary) - Number(a.primary) || a.name.localeCompare(b.name));
 }
 
 export async function controlManagedBot(guildId: string, botId: string, body: unknown) {

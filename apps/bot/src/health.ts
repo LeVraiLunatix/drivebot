@@ -3,7 +3,7 @@ import { config } from "./config.js";
 import { client } from "./client.js";
 import { invalidateGuildConfig } from "./lib/guildConfig.js";
 import { getGuildMeta } from "./lib/guildMeta.js";
-import { collectBotStatus } from "./lib/statusReport.js";
+import { collectBotStatus, publishStatusBoard } from "./lib/statusReport.js";
 import { sendEmbedToChannel } from "./lib/sendEmbed.js";
 import { publishTicketPanel } from "./lib/tickets.js";
 import { publishVerificationPanel } from "./lib/verification.js";
@@ -115,6 +115,15 @@ export function startHealthServer(): void {
     }
 
     const sendMatch = url.match(/^\/internal\/guilds\/(\d+)\/send-embed$/);
+    const statusBoardMatch = url.match(/^\/internal\/guilds\/(\d+)\/status-board$/);
+    if (method === "POST" && statusBoardMatch) {
+      publishStatusBoard(statusBoardMatch[1]).then((result) => {
+        res.writeHead(result.ok ? 200 : 400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+      }).catch(() => res.writeHead(500).end());
+      return;
+    }
+
     if (method === "POST" && sendMatch) {
       readJson(req)
         .then(async (body) => {
