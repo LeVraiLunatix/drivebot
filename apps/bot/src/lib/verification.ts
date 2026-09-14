@@ -14,6 +14,7 @@ import {
 import { prisma, type VerificationConfig } from "@drivebot/database";
 import { client } from "../client.js";
 import { isManagedBotOnline, sendAsManagedBot } from "./managedBots.js";
+import { sendWelcomeMessage } from "./welcome.js";
 
 // Caractères non ambigus (pas de O/0, I/1).
 const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -91,6 +92,13 @@ export async function submitVerification(interaction: ModalSubmitInteraction): P
   }
 
   try {
+    // Un second clic valide ne doit pas republier une nouvelle bienvenue.
+    const wasVerified = cfg.verifiedRoleId
+      ? member.roles.cache.has(cfg.verifiedRoleId)
+      : cfg.unverifiedRoleId
+        ? !member.roles.cache.has(cfg.unverifiedRoleId)
+        : false;
+
     if (cfg.verifiedRoleId) {
       const role = interaction.guild.roles.cache.get(cfg.verifiedRoleId);
       if (role) await member.roles.add(role);
@@ -99,6 +107,15 @@ export async function submitVerification(interaction: ModalSubmitInteraction): P
       await member.roles.remove(cfg.unverifiedRoleId);
     }
     await interaction.reply({ content: "✅ Tu es vérifié ! Bienvenue 🎉", ephemeral: true });
+
+    if (!wasVerified) {
+      const welcome = await prisma.welcomeConfig.findUnique({ where: { guildId: interaction.guild.id } });
+      if (welcome?.joinEnabled && welcome.joinAfterVerification) {
+        await sendWelcomeMessage(member).catch((error) => {
+          console.error(`[welcome] envoi après vérification impossible pour ${member.id}:`, error);
+        });
+      }
+    }
   } catch {
     await interaction.reply({
       content: "❌ Impossible de te donner le rôle. Préviens un membre du staff (permissions du bot).",

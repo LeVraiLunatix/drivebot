@@ -1,10 +1,9 @@
 import { type GuildMember } from "discord.js";
 import { getGuildConfig } from "../lib/guildConfig.js";
-import { buildJoinEmbed } from "../lib/welcomeEmbed.js";
 import { checkRaid } from "../lib/protection.js";
-import { sendAsManagedBot } from "../lib/managedBots.js";
+import { sendWelcomeMessage } from "../lib/welcome.js";
 
-/** À l'arrivée : anti-raid, rôle non-vérifié (si vérif active), autorôles, embed de bienvenue. */
+/** À l'arrivée : anti-raid, rôle non-vérifié, autorôles et éventuellement bienvenue immédiate. */
 export async function onGuildMemberAdd(member: GuildMember): Promise<void> {
   await checkRaid(member).catch((e) => console.error("[protection] checkRaid:", e));
 
@@ -27,12 +26,11 @@ export async function onGuildMemberAdd(member: GuildMember): Promise<void> {
     }
   }
 
-  // Embed de bienvenue.
+  // Avec la vérification active, la bienvenue attend sa réussite.
   const w = cfg.welcome;
-  if (!w?.joinEnabled || !w.joinChannel) return;
-  const channel = member.guild.channels.cache.get(w.joinChannel);
-  if (!channel?.isTextBased()) return;
+  if (w?.joinAfterVerification && v?.enabled) return;
 
-  await sendAsManagedBot(w.botId, member.guild.id, w.joinChannel, { content: `<@${member.id}>`, embeds: [buildJoinEmbed(member, w.joinMessage).toJSON()] })
-    .catch(() => {});
+  await sendWelcomeMessage(member).catch((error) => {
+    console.error(`[welcome] envoi impossible pour ${member.id}:`, error);
+  });
 }

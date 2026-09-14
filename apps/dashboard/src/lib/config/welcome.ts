@@ -7,6 +7,7 @@ export interface WelcomeFormData {
   joinEnabled: boolean;
   joinChannel: string | null;
   joinMessage: string;
+  joinAfterVerification: boolean;
   leaveEnabled: boolean;
   leaveChannel: string | null;
   leaveMessage: string;
@@ -26,7 +27,8 @@ export async function loadWelcomeConfig(
     botId: welcome?.botId ?? null,
     joinEnabled: welcome?.joinEnabled ?? false,
     joinChannel: welcome?.joinChannel ?? null,
-    joinMessage: welcome?.joinMessage ?? "Bienvenue {user} sur {server} ! 🎉",
+    joinMessage: welcome?.joinMessage ?? "Bienvenue {user} sur **{server}** ! 🎉\n\nTa vérification est terminée : tu as maintenant accès à l’ensemble du serveur.",
+    joinAfterVerification: welcome?.joinAfterVerification ?? true,
     leaveEnabled: welcome?.leaveEnabled ?? false,
     leaveChannel: welcome?.leaveChannel ?? null,
     leaveMessage: welcome?.leaveMessage ?? "{username} a quitté le serveur.",
@@ -70,6 +72,7 @@ function toColumns(data: WelcomeFormData) {
     joinEnabled: data.joinEnabled,
     joinChannel: data.joinChannel,
     joinMessage: data.joinMessage,
+    joinAfterVerification: data.joinAfterVerification,
     leaveEnabled: data.leaveEnabled,
     leaveChannel: data.leaveChannel,
     leaveMessage: data.leaveMessage,

@@ -48,9 +48,11 @@ model WelcomeConfig {
 
   joinEnabled  Boolean @default(false)
   joinChannel  String?
-  joinMessage  String  @default("Bienvenue {user} sur {server} ! 🎉")
+  joinMessage  String  @default("Bienvenue {user} sur **{server}** ! 🎉\n\nTa vérification est terminée : tu as maintenant accès à l’ensemble du serveur.")
   joinUseEmbed Boolean @default(false)
   joinEmbed    Json?
+  /// Attend la réussite de la vérification avant de publier la bienvenue.
+  joinAfterVerification Boolean @default(true)
   botId        String?
 
   leaveEnabled Boolean @default(false)

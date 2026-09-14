@@ -7,7 +7,7 @@ import type { WelcomeFormData } from "@/lib/config/welcome";
 import { SectionCard, Field } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
 import { SaveBar } from "@/components/config/SettingsForm";
-import { IconWave, IconLogout, IconTag } from "@/components/ui/Icons";
+import { IconWave, IconLogout, IconTag, IconShield } from "@/components/ui/Icons";
 import { BotPicker, useBotSelection } from "@/components/BotSelection";
 
 export function WelcomeForm({
@@ -25,6 +25,7 @@ export function WelcomeForm({
   const [joinEnabled, setJoinEnabled] = useState(initial.joinEnabled);
   const [joinChannel, setJoinChannel] = useState(initial.joinChannel ?? "");
   const [joinMessage, setJoinMessage] = useState(initial.joinMessage);
+  const [joinAfterVerification, setJoinAfterVerification] = useState(initial.joinAfterVerification);
   const [leaveEnabled, setLeaveEnabled] = useState(initial.leaveEnabled);
   const [leaveChannel, setLeaveChannel] = useState(initial.leaveChannel ?? "");
   const [leaveMessage, setLeaveMessage] = useState(initial.leaveMessage);
@@ -50,6 +51,7 @@ export function WelcomeForm({
           joinEnabled,
           joinChannel: joinChannel || null,
           joinMessage,
+          joinAfterVerification,
           leaveEnabled,
           leaveChannel: leaveChannel || null,
           leaveMessage,
@@ -69,11 +71,18 @@ export function WelcomeForm({
 
       <SectionCard
         title="Message de bienvenue"
-        description="Envoyé quand un membre rejoint le serveur."
+        description={joinAfterVerification ? "Envoyé dès que le membre termine la vérification." : "Envoyé dès que le membre rejoint le serveur."}
         icon={<IconWave />}
         aside={<Toggle checked={joinEnabled} onChange={setJoinEnabled} label="" />}
       >
         <div className="grid gap-5">
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-[var(--color-line)] bg-wash px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-foreground">Attendre la vérification</p>
+              <p className="mt-0.5 text-xs text-muted">Le membre reçoit sa bienvenue uniquement après avoir obtenu son accès.</p>
+            </div>
+            <Toggle checked={joinAfterVerification} onChange={setJoinAfterVerification} label="" />
+          </div>
           <Field label="Salon">
             <select value={joinChannel} onChange={(e) => setJoinChannel(e.target.value)} className="field-input">
               <option value="">— Choisir un salon —</option>
@@ -92,6 +101,24 @@ export function WelcomeForm({
             <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Aperçu de l'embed</span>
             <WelcomeEmbedPreview kind="join" message={joinMessage} serverName={meta?.name} />
           </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Parcours synchronisé"
+        description="Résumé des actions réellement exécutées par les bots avec ces réglages."
+        icon={<IconShield />}
+      >
+        <div className="grid gap-3 sm:grid-cols-3">
+          <FlowStep number="1" title="Arrivée" text="Rôle non vérifié et rôles automatiques attribués." />
+          <FlowStep number="2" title="Vérification" text={joinAfterVerification ? "Accès débloqué, puis embed de bienvenue envoyé." : "Accès au serveur débloqué."} />
+          <FlowStep number="3" title="Départ" text="Embed de départ envoyé dans le salon choisi." />
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted">
+          <SyncChip label={joinEnabled ? `Bienvenue · #${channels.find((c) => c.id === joinChannel)?.name ?? "salon configuré"}` : "Bienvenue désactivée"} active={joinEnabled} />
+          <SyncChip label={leaveEnabled ? `Départ · #${channels.find((c) => c.id === leaveChannel)?.name ?? "salon configuré"}` : "Départ désactivé"} active={leaveEnabled} />
+          <SyncChip label={`${autoRoleIds.length} rôle${autoRoleIds.length > 1 ? "s" : ""} automatique${autoRoleIds.length > 1 ? "s" : ""}`} active={autoRoleIds.length > 0} />
+          <SyncChip label="Embeds Discord" active />
         </div>
       </SectionCard>
 
@@ -153,6 +180,24 @@ export function WelcomeForm({
 
       <SaveBar pending={pending} msg={msg} onSave={save} />
     </div>
+  );
+}
+
+function FlowStep({ number, title, text }: { number: string; title: string; text: string }) {
+  return (
+    <div className="rounded-xl border border-[var(--color-line)] bg-wash p-4">
+      <span className="inline-flex size-7 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent">{number}</span>
+      <p className="mt-3 text-sm font-semibold text-foreground">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted">{text}</p>
+    </div>
+  );
+}
+
+function SyncChip({ label, active }: { label: string; active: boolean }) {
+  return (
+    <span className={`rounded-full border px-3 py-1.5 ${active ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-[var(--color-line)] bg-wash"}`}>
+      {active ? "●" : "○"} {label}
+    </span>
   );
 }
 

@@ -56,7 +56,9 @@ export default async function GuildHomePage({
       href: `${base}/welcome`,
       icon: <IconWave />,
       title: "Bienvenue & autorole",
-      desc: welcome.joinEnabled ? "Message d'arrivée actif" : "Aucun message d'arrivée",
+      desc: welcome.joinEnabled
+        ? welcome.joinAfterVerification ? "Bienvenue envoyée après vérification" : "Message d'arrivée actif"
+        : "Aucun message d'arrivée",
       enabled: welcome.joinEnabled || welcome.leaveEnabled || welcome.autoRoleIds.length > 0,
     },
     {
