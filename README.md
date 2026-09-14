@@ -90,8 +90,9 @@ Le dashboard ne démarre ni ne redémarre les processus du VPS.
 Pour importer explicitement le fichier de tokens du propriétaire :
 `node scripts/import-bot-tokens.mjs "D:/Cordsuite Bot discord token.txt"`.
 Les secrets sont écrits uniquement dans `.env`, ignoré par Git.
-`node scripts/deploy-bot-oracle.mjs` sauvegarde le code et `.env` sur Oracle,
-met à jour les sources et les tokens, puis redémarre seulement le processus Drivebot existant.
+`node scripts/deploy-bot-oracle.mjs` sauvegarde le code et `.env` directement sur Oracle,
+met à jour uniquement les sources, puis redémarre le processus Drivebot existant. Les secrets
+restent sur le serveur et ne sont jamais retransmis pendant un déploiement.
 Il ne publie pas le dashboard sur Vercel et ne modifie pas Sona.
 
 Validation locale : `node --import tsx --test apps/bot/src/lib/dashboardControl.test.ts`,
